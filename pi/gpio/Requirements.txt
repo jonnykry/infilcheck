@@ -1,0 +1,9 @@
+GPIO PERIFPHERALS
+-LED Internet Connection Rising/Falling
+-LED Video Capturing
+-LED Object Detected
+-Photosensitor
+
+
+OTHER PERIPHERALS
+-ALARMA
