@@ -1,4 +1,18 @@
 {% extends "layout.html" %}
 {% block body %}
 <h1>Register</h1>
+
+<div class="info">
+    <h3>Enter Your Information:</h3>
+    <form id="form1" class="input-group" action = "{{ url_for('addrec') }}" method = "POST">
+        <input id="name" type="text" class="form-control" placeholder="Name" type = "text" name = "name" />
+        <input id="email" type="text" class="form-control" placeholder="Email" type = "text" name = "email" />
+        <input id="phone" type="text" class="form-control" placeholder="Phone" type = "text" name = "phone" />
+        <input id="password" type="text" class="form-control" placeholder="Password" type = "text" name = "password" />
+        <input type="submit" value="Submit">
+    </form>
+</div>
+
+
+
 {% endblock %}
