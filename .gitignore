@@ -89,3 +89,6 @@ ENV/
 .ropeproject
 
 .idea
+
+# Ignore uploads folder
+app/static/uploads
