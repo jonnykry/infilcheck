@@ -81,4 +81,11 @@ def dashboard():
 
 @app.route('/upload', methods=['POST'])
 def upload_video():
+
+    # TODO:  Get userId
+    user_id = 12345
+
+    s3.create_bucket(Bucket=user_id)
+    
+
     return redirect('dashboard')
