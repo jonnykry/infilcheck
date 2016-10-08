@@ -1,9 +1,14 @@
 import os
+
 from flask import Flask, render_template, redirect , Response
 from flask.ext.login import LoginManager, UserMixin, login_required
 
-app = Flask(__name__, template_folder='../templates')
+import boto3
 
+
+app = Flask(__name__, template_folder='templates')
+
+s3 = boto3.resource('s3')
 
 # Load default config and override config from an environment variable
 app.config.update(dict(
@@ -16,8 +21,14 @@ app.config.from_envvar('ATTENDANCEAPP_SETTINGS', silent=True)
 
 
 
+
 login_manager = LoginManager()
 login_manager.init_app(app)
+
+@app.route('/')
+def home():
+    return dashboard()
+
 
 
 class User(UserMixin):
@@ -50,10 +61,6 @@ def load_user(request):
     return None
 
 
-@app.route("/",methods=["GET"])
-def index():
-    return Response(response="Hello World!",status=200)
-
 
 @app.route("/protected/",methods=["GET"])
 @login_required
@@ -61,3 +68,17 @@ def protected():
     return Response(response="Hello Protected World!", status=200)
 
 
+
+@app.route('/logout')
+def logout():
+    return redirect('/')
+
+
+@app.route('/dashboard')
+def dashboard():
+    return render_template('dashboard.html')
+
+
+@app.route('/upload', methods=['POST'])
+def upload_video():
+    return redirect('dashboard')
