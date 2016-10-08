@@ -21,9 +21,6 @@ app.config.update(dict(
 ))
 app.config.from_envvar('ATTENDANCEAPP_SETTINGS', silent=True)
 
-
-
-
 login_manager = flask_login.LoginManager()
 login_manager.init_app(app)
 
@@ -62,11 +59,11 @@ def request_loader(request):
 
     return user
 
+
 @app.route('/logout')
 def logout():
     flask_login.logout_user()
     return redirect('dashboard')
-
 
 
 @app.route('/register', methods=['GET', 'POST'])
