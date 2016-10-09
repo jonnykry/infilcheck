@@ -106,19 +106,21 @@ def dashboard():
     user = User()
     user_id = '12345'
 
-    bucket = s3.Bucket(head_bucket + '/' + user_id)
+    """
+    bucket = s3.Bucket(head_bucket)
     exists = True
 
     try:
-        s3.meta.client.head_bucket(Bucket=user_id)
+        s3.meta.client.head_bucket(Bucket=bucket)
     except botocore.exceptions.ClientError as e:
         # If a client error is thrown, then check that it was a 404 error.
         # If it was a 404 error, then the bucket does not exist.
         error_code = int(e.response['Error']['Code'])
         if error_code == 404:
             exists = False
+    """
 
-    return render_template('dashboard.html', bucket=bucket)
+    return render_template('dashboard.html')
 
 
 @app.route('/upload', methods=['POST'])
