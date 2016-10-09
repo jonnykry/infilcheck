@@ -83,12 +83,6 @@ def login():
     return 'Bad login'
 
 
-@app.route('/protected')
-@flask_login.login_required
-def protected():
-    return 'Logged in as: ' + flask_login.current_user.id
-
-
 @app.route('/logout')
 def logout():
     flask_login.logout_user()
@@ -98,6 +92,24 @@ def logout():
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     return render_template('register.html')
+
+
+@app.route('/protected')
+@flask_login.login_required
+def protected():
+    return 'Logged in as: ' + flask_login.current_user.id
+
+
+@app.route('/settings', methods=['GET', 'POST'])
+@flask_login.login_required
+def settings():
+    return render_template('settings.html')
+
+
+@app.route('/live', methods=['GET', 'POST'])
+@flask_login.login_required
+def live():
+    return render_template('live.html')
 
 
 @app.route('/dashboard')
@@ -123,6 +135,7 @@ def dashboard():
     return render_template('dashboard.html')
 
 
+# TODO:  How will we authenticate and communicate with the Pi?
 @app.route('/upload', methods=['POST'])
 def upload_video():
     user = User()
