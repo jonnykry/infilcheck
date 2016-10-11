@@ -26,7 +26,6 @@ app.config.update(dict(
     PASSWORD='admin',
 ))
 
-
 db = SQLAlchemy(app)
 
 login_manager = flask_login.LoginManager()
@@ -69,6 +68,21 @@ class User(db.Model):
         """False, as anonymous users aren't supported."""
         return False
 
+@app.errorhandler(403)
+def forbidden_page(error):
+    return render_template("access_forbidden.html"), 403
+
+@app.errorhandler(404)
+def page_not_found(error):
+    return render_template("page_not_found.html"), 404
+
+@app.errorhandler(405)
+def method_not_allowed_page(error):
+    return render_template("method_not_allowed.html"), 405
+
+@app.errorhandler(500)
+def server_error_page(error):
+    return render_template("server_error.html"), 500
 
 @login_manager.user_loader
 def user_loader(email):
@@ -142,6 +156,10 @@ def register():
             user = User(email, password)
             db.session.add(user)
             db.session.commit()
+
+            flask_login.login_user(user)
+
+            return redirect('dashboard')
         else:
             print('Error creating user: ' + email, file=sys.stderr)
 
@@ -186,7 +204,9 @@ def dashboard():
             exists = False
     """
 
-    return render_template('dashboard.html')
+    username = flask_login.current_user.email.rsplit('@', 1)[0]
+
+    return render_template('dashboard.html', username=username)
 
 
 # TODO:  How will we authenticate and communicate with the Pi?
