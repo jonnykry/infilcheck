@@ -112,7 +112,6 @@ def user_loader(email):
 
     return temp_user
 
-
 @login_manager.request_loader
 def request_loader(request):
     email = request.form.get('email')
