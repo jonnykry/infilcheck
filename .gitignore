@@ -92,3 +92,5 @@ ENV/
 
 # Ignore uploads folder
 app/static/uploads
+
+migrations
