@@ -2,7 +2,7 @@ from __future__ import print_function
 import os
 import sys
 import flask
-from flask import Flask, render_template, redirect , Response
+from flask import Flask, request, render_template, redirect , Response
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, \
      check_password_hash
@@ -121,11 +121,11 @@ def unauthorized():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    if flask.request.method == 'GET':
+    if request.method == 'GET':
         return render_template('login.html')
 
-    email = flask.request.form['email']
-    password = flask.request.form['pass']
+    email = request.form['email']
+    password = request.form['pass']
 
     for user in db.session.query(User).filter(User.email == email):
         print('Login Result: ' + user.email, file=sys.stderr)
@@ -147,9 +147,9 @@ def logout():
 @app.route('/register', methods=['GET', 'POST'])
 def register():
 
-    if flask.request.method == 'POST':
-        email = flask.request.form['email']
-        password = flask.request.form['password']
+    if request.method == 'POST':
+        email = request.form['email']
+        password = request.form['password']
 
         if email is not None and password is not None:
             print('Creating user: ' + email + ' ' + password, file=sys.stderr)
@@ -187,36 +187,10 @@ def live():
 @app.route('/dashboard')
 @flask_login.login_required
 def dashboard():
-    """
-    user = User()
-    user_id = '12345'
+    user = username = flask_login.current_user
+    user_id = user.id
 
     bucket = s3.Bucket(head_bucket)
-    exists = True
-
-    try:
-        s3.meta.client.head_bucket(Bucket=bucket)
-    except botocore.exceptions.ClientError as e:
-        # If a client error is thrown, then check that it was a 404 error.
-        # If it was a 404 error, then the bucket does not exist.
-        error_code = int(e.response['Error']['Code'])
-        if error_code == 404:
-            exists = False
-    """
-
-    username = flask_login.current_user.email.rsplit('@', 1)[0]
-
-    return render_template('dashboard.html', username=username)
-
-
-# TODO:  How will we authenticate and communicate with the Pi?
-@app.route('/upload', methods=['POST'])
-def upload_video():
-    """
-    user = User()
-    user_id = user.get_id()
-
-    bucket = s3.Bucket(head_bucket + '/' + user_id)
     exists = True
 
     try:
@@ -228,18 +202,70 @@ def upload_video():
         if error_code == 404:
             exists = False
 
-    if not exists:
-        s3.create_bucket(head_bucket)
+    url_list = []
 
-    # TODO: Store the POST data as a temporary `.mov` or `.mp4` file
+    if exists:
+        for key in bucket.objects.all():
+            url = get_bucket_url(bucket.name, key.key)
+            temp_user_id = key.key.rsplit('/', 1)[0]
+            print('userId: ' + temp_user_id)
+            print(url, file=sys.stderr)
 
-    filepath = 'app/static/uploads'
-    if not os.path.exists(filepath):
-        os.makedirs(filepath)
+            # TODO:  Only allow user_ids
+            if temp_user_id == user_id:
+                url_list.append(url)
 
-    filepath += '/temp.mp4'
+    username = user.email.rsplit('@', 1)[0]
 
-    # TODO:  Uniquely identify each video upload
-    s3.Object(head_bucket, user_id + '/temp.mp4').put(Body=open(filepath, 'rb'))
-    """
+    return render_template('dashboard.html', username=username, urls=url_list)
+
+
+@app.route('/upload', methods=['POST'])
+def upload_video():
+    if request.method == 'POST':
+
+        data = request.data
+        pi_id = data['pi_id']
+        user_to_update = None
+
+        for user in db.session.query(User).filter(User.piid == pi_id):
+            user_to_update = user
+            break
+
+        if 'file' not in request.files:
+            print('No file in POST request', file=sys.stderr)
+            return redirect('dashboard')
+
+        file = request.files['file']
+        file.save('static/uploads/temp.avi')
+
+        bucket = s3.Bucket(head_bucket)
+        exists = True
+
+        try:
+            s3.meta.client.head_bucket(Bucket=head_bucket)
+        except botocore.exceptions.ClientError as e:
+            # If a client error is thrown, then check that it was a 404 error.
+            # If it was a 404 error, then the bucket does not exist.
+            error_code = int(e.response['Error']['Code'])
+            if error_code == 404:
+                exists = False
+
+        if not exists:
+            s3.create_bucket(head_bucket)
+
+        filepath = 'app/static/uploads'
+        if not os.path.exists(filepath):
+            os.makedirs(filepath)
+
+        filepath += '/temp.mp4'
+
+        obj = s3.Object(head_bucket, user_id + '/temp.mp4')
+        obj.Acl().put(ACL='public-read')
+        obj.put(Body=open(filepath, 'rb'))
+
     return redirect('dashboard')
+
+
+def get_bucket_url(bucket, object_name):
+    return 'https://s3.amazonaws.com/' + bucket + '/' + object_name

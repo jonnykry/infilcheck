@@ -2,6 +2,8 @@
 {% block body %}
 <div class="container">
   <h1>{{ username }}'s Dashboard</h1>
-  <video width="320" height="280" controls>
+  {% for url in urls %}
+    <video src={{ url }} width="320" height="280" controls>
+  {% endfor %}
 </div>
 {% endblock %}
