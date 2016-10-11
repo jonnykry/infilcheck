@@ -4,12 +4,15 @@ import sys
 import flask
 from flask import Flask, render_template, redirect , Response
 from flask_sqlalchemy import SQLAlchemy
+from werkzeug.security import generate_password_hash, \
+     check_password_hash
 import flask_login
 import boto3
 import botocore
 
 app = Flask(__name__, template_folder='templates')
-app.secret_key = 'super secret string'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.secret_key = 'super duper secret key xD'
 
 head_bucket = 'se329-project2'
 
@@ -23,6 +26,7 @@ app.config.update(dict(
     PASSWORD='admin',
 ))
 
+
 db = SQLAlchemy(app)
 
 login_manager = flask_login.LoginManager()
@@ -32,34 +36,67 @@ login_manager.init_app(app)
 def home():
     return dashboard()
 
-users = {'test@test.com': {'pw': '123'},'test2': {'pw': 'secret'}}
+class User(db.Model):
+    __tablename__ = 'user'
 
-class User(flask_login.UserMixin):
-    pass
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(120), unique=True)
+    passhash = db.Column(db.String(120), unique=True)
+
+    def __init__(self, email, password):
+        self.email = email
+        self.set_password(password)
+
+    def set_password(self, password):
+        self.passhash = generate_password_hash(password)
+
+    def check_password(self, password):
+        return check_password_hash(self.passhash, password)
+
+    def is_active(self):
+        """True, as all users are active."""
+        return True
+
+    def get_id(self):
+        """Return the email address to satisfy Flask-Login's requirements."""
+        return self.email
+
+    def is_authenticated(self):
+        """Return True if the user is authenticated."""
+        return self.authenticated
+
+    def is_anonymous(self):
+        """False, as anonymous users aren't supported."""
+        return False
 
 
 @login_manager.user_loader
 def user_loader(email):
-    if email not in users:
-        return
+    for user in db.session.query(User).filter(User.email == email):
+        print('User loader: ' + user.email, file=sys.stderr)
 
-    user = User()
-    user.id = email
+        if user is None:
+            return
+
     return user
 
 
 @login_manager.request_loader
 def request_loader(request):
     email = request.form.get('email')
-    if email not in users:
+
+    if email is None:
         return
 
-    user = User()
-    user.id = email
+    password = request.form['pw']
 
-    # DO NOT ever store passwords in plaintext and always compare password
-    # hashes using constant-time comparison!
-    user.is_authenticated = request.form['pw'] == users[email]['pw']
+    for user in db.session.query(User).filter(User.email == email):
+        print('User loader: ' + user.email, file=sys.stderr)
+
+        if user is None:
+            return
+
+        user.is_authenticated = user.check_password(password)
 
     return user
 
@@ -74,12 +111,16 @@ def login():
         return render_template('login.html')
 
     email = flask.request.form['email']
-    if flask.request.form['pass'] == users[email]['pw']:
-        user = User()
-        user.id = email
-        flask_login.login_user(user)
-        return redirect('dashboard')
+    password = flask.request.form['pass']
 
+    for user in db.session.query(User).filter(User.email == email):
+        print('Login Result: ' + user.email, file=sys.stderr)
+
+        if user.check_password(password):
+            flask_login.login_user(user)
+            return redirect('dashboard')
+
+    # TODO:  Send a bad request result
     return 'Bad login'
 
 
@@ -91,6 +132,19 @@ def logout():
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
+
+    if flask.request.method == 'POST':
+        email = flask.request.form['email']
+        password = flask.request.form['password']
+
+        if email is not None and password is not None:
+            print('Creating user: ' + email + ' ' + password, file=sys.stderr)
+            user = User(email, password)
+            db.session.add(user)
+            db.session.commit()
+        else:
+            print('Error creating user: ' + email, file=sys.stderr)
+
     return render_template('register.html')
 
 
@@ -115,10 +169,10 @@ def live():
 @app.route('/dashboard')
 @flask_login.login_required
 def dashboard():
+    """
     user = User()
     user_id = '12345'
 
-    """
     bucket = s3.Bucket(head_bucket)
     exists = True
 
@@ -138,6 +192,7 @@ def dashboard():
 # TODO:  How will we authenticate and communicate with the Pi?
 @app.route('/upload', methods=['POST'])
 def upload_video():
+    """
     user = User()
     user_id = user.get_id()
 
@@ -166,5 +221,5 @@ def upload_video():
 
     # TODO:  Uniquely identify each video upload
     s3.Object(head_bucket, user_id + '/temp.mp4').put(Body=open(filepath, 'rb'))
-
+    """
     return redirect('dashboard')
