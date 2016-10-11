@@ -2,6 +2,7 @@ from __future__ import print_function
 import os
 import sys
 import flask
+import uuid
 from flask import Flask, render_template, redirect , Response
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, \
@@ -41,11 +42,16 @@ class User(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(120), unique=True)
+    phone = db.Column(db.String(12), unique=True)
     passhash = db.Column(db.String(120), unique=True)
+    pi_id = db.Column(db.String(120), unique=True)
 
-    def __init__(self, email, password):
+
+    def __init__(self, email, password, phone):
         self.email = email
         self.set_password(password)
+        self.phone = phone
+        self.pi_id = str(uuid.uuid4())
 
     def set_password(self, password):
         self.passhash = generate_password_hash(password)
@@ -77,7 +83,7 @@ def user_loader(email):
 
         if user is None:
             return
-
+    
     return user
 
 
@@ -137,12 +143,15 @@ def register():
     if flask.request.method == 'POST':
         email = flask.request.form['email']
         password = flask.request.form['password']
+        phone = flask.request.form['phone']
 
-        if email is not None and password is not None:
+        if email is not None and password is not None and phone is not None:
             print('Creating user: ' + email + ' ' + password, file=sys.stderr)
-            user = User(email, password)
+            user = User(email, password,phone)
             db.session.add(user)
             db.session.commit()
+            flask_login.login_user(user)
+            return redirect('dashboard')
         else:
             print('Error creating user: ' + email, file=sys.stderr)
 
@@ -158,7 +167,7 @@ def protected():
 @app.route('/settings', methods=['GET', 'POST'])
 @flask_login.login_required
 def settings():
-    return render_template('settings.html')
+    return render_template('settings.html', user_data = flask_login.current_user)
 
 
 @app.route('/live', methods=['GET', 'POST'])

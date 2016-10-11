@@ -34,8 +34,8 @@ Windows Guide:
 
 Env Set-up:
 ```
-$ set FLASK_APP=app/server.py
-$ set DATABASE_URL=postgresql://postgres:@localhost/infilcheck_dev
+set FLASK_APP=app/server.py
+set DATABASE_URL=postgresql://postgres:@localhost/infilcheck_dev
 ```
 
 Local Database Set-up:
