@@ -8,16 +8,20 @@ TODO:  Write a pretty intro.
 
 MacOS Guide:
 
-Database Set-up:
+Env Set-up:
+```
+$ export FLASK_APP=app/server.py
+$ export DATABASE_URL="postgresql://localhost/infilcheck_dev"
+```
+
+Local Database Set-up:
 ```
 $ psql
 # create database infilcheck_dev;
 CREATE DATABASE
 # \q
-```
 
-Flask / Env Set-up:
-```
-$ export FLASK_APP=app/server.py
-$ export DATABASE_URL="postgresql://localhost/infilcheck_dev"
+$ python app/manage.py db init
+$ python app/manage.py db migrate
+$ python app/manage.py db upgrade
 ```
