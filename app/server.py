@@ -96,13 +96,21 @@ def server_error_page(error):
 
 @login_manager.user_loader
 def user_loader(email):
-    for user in db.session.query(User).filter(User.email == email):
+    users = db.session.query(User).filter(User.email == email)
+
+    if users is None:
+        return;
+
+    temp_user = None
+
+    for user in users:
         print('User loader: ' + user.email, file=sys.stderr)
+        temp_user = user
 
-        if user is None:
-            return
+    if temp_user is None:
+        return
 
-    return user
+    return temp_user
 
 
 @login_manager.request_loader
