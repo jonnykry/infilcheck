@@ -28,3 +28,24 @@ $ python app/manage.py db init
 $ python app/manage.py db migrate
 $ python app/manage.py db upgrade
 ```
+
+
+Windows Guide:
+
+Env Set-up:
+```
+set FLASK_APP=app/server.py
+set DATABASE_URL=postgresql://postgres:@localhost/infilcheck_dev
+```
+
+Local Database Set-up:
+```
+$ psql
+# create database infilcheck_dev;
+CREATE DATABASE
+# \q
+
+$ python app/manage.py db init
+$ python app/manage.py db migrate
+$ python app/manage.py db upgrade
+```

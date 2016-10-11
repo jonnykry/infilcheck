@@ -68,21 +68,26 @@ class User(db.Model):
         """False, as anonymous users aren't supported."""
         return False
 
+
 @app.errorhandler(403)
 def forbidden_page(error):
     return render_template("access_forbidden.html"), 403
+
 
 @app.errorhandler(404)
 def page_not_found(error):
     return render_template("page_not_found.html"), 404
 
+
 @app.errorhandler(405)
 def method_not_allowed_page(error):
     return render_template("method_not_allowed.html"), 405
 
+
 @app.errorhandler(500)
 def server_error_page(error):
     return render_template("server_error.html"), 500
+
 
 @login_manager.user_loader
 def user_loader(email):
@@ -113,6 +118,7 @@ def request_loader(request):
         user.is_authenticated = user.check_password(password)
 
     return user
+
 
 @login_manager.unauthorized_handler
 def unauthorized():
@@ -146,7 +152,6 @@ def logout():
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
-
     if request.method == 'POST':
         email = request.form['email']
         password = request.form['password']
@@ -237,7 +242,6 @@ def upload_video():
             return redirect('dashboard')
 
         file = request.files['file']
-        file.save('static/uploads/temp.avi')
 
         bucket = s3.Bucket(head_bucket)
         exists = True
@@ -262,7 +266,7 @@ def upload_video():
 
         obj = s3.Object(head_bucket, user_id + '/temp.mp4')
         obj.Acl().put(ACL='public-read')
-        obj.put(Body=open(filepath, 'rb'))
+        obj.put(Body=file)
 
     return redirect('dashboard')
 

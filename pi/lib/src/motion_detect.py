@@ -2,12 +2,13 @@ from picamera.array import PiRGBArray
 from picamera import PiCamera
 
 import sys
+import imutils
 import datetime
 import time
 import cv2
 
-
 DEBUG = 0
+
 
 
 """
@@ -51,6 +52,12 @@ def resize(image, width=None, height=None, inter=cv2.INTER_AREA):
     return resized
 
 
+def add_status_and_timestamps(frame, text, timestamp):
+    ts = timestamp.strftime("%A %d %B %Y %I:%M:%S%p")
+    cv2.putText(frame, "Room: {}".format(text), (10, 20), cv2.FONT_HERSHEY_PLAIN, 0.5, (0, 0, 255), 2)
+    cv2.putText(frame, ts, (10, frame.shape[0] - 10), cv2.FONT_HERSHEY_PLAIN, 0.35, (0, 0, 255), 1)
+
+    
 def debug_print(msg):
     if DEBUG:
         print(msg)
@@ -65,6 +72,9 @@ def parse_args(argv):
 
     if '-d' in argv:
         DEBUG = 1
+
+    if '-ns' in argv:
+        NOSCREEN = 1
     
     if '-v' in argv:
         idx = argv.index('-v')
@@ -86,7 +96,12 @@ def wait_for_cam(max):
 
 def main():
 
+    IS_CAPTURING = 0
+    CAPTURED = 0
+    fourcc = cv2.VideoWriter_fourcc(*'MJPG')
+    out = cv2.VideoWriter('output.avi',fourcc, 1.0, (500, 375))
 
+    
     
     args = parse_args(sys.argv)
 
@@ -100,7 +115,7 @@ def main():
     rawCapture = PiRGBArray(cam, size=CAPTURE_RESOLUTION)
 
     # wait for camera to warm up
-    time.sleep(0.3)
+    time.sleep(0.1)
 
     avg = None
     lastUploaded = datetime.datetime.now()
@@ -114,45 +129,60 @@ def main():
 
         #resize / convert the frame to grayscale
         frame = resize(frame, width=500)
-        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        print frame.shape[:2]
+        grayscale_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
         #apply gaussian blur
-        gray = cv2.GaussianBlur(gray, (21, 21), 0)
+        grayscale_frame = cv2.GaussianBlur(grayscale_frame, (21, 21), 0)
 
         # if this is the first capture, we have to init average
         if avg is None:
-            print "[INFO] starting background model..."
-            avg = gray.copy().astype("float")
+            avg = grayscale_frame.copy().astype("float")
             rawCapture.truncate(0)
             continue
 
         # accumulate weighted average between current frame and previous frames
-        cv2.accumulateWeighted(gray, avg, 0.5)
-        # compute the difference between the current frame and the running average
-        frameDelta = cv2.absdiff(gray, cv2.convertScaleAbs(avg))
+        cv2.accumulateWeighted(grayscale_frame, avg, 0.83)
+        frameDelta = cv2.absdiff(grayscale_frame, cv2.convertScaleAbs(avg))
 
         # threshold the delta image, dilate the thresholded image to fill
         # in holes, then find contours on thresholded image
-        thresh = cv2.threshold(frameDelta, 5, 255, cv2.THRESH_BINARY)[1]
-        thresh = cv2.dilate(thresh, None, iterations=2)
+        thresh = cv2.threshold(frameDelta, 2, 255, cv2.THRESH_BINARY)[1]
+        thresh = cv2.dilate(thresh, None, iterations=6)
         (__, cnts, _) = cv2.findContours(thresh.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
         for c in cnts:
             if cv2.contourArea(c) < 500:
                 continue
 
-            (x, y, w, h) = cv2.boundingRect`(c)
+            (x, y, w, h) = cv2.boundingRect(c)
             cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
             text = "Occupied"
 
-        ts = timestamp.strftime("%A %d %B %Y %I:%M:%S%p")
-        cv2.putText(frame, "Room Status: {}".format(text), (10, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
-        cv2.putText(frame, ts, (10, frame.shape[0] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.35, (0, 0, 255), 1)
 
-        if text != "Occupied":
+        if text == "Occupied":
+            motionCounter += 1
+            if motionCounter > 10 and not CAPTURED:
+                print "STARTING CAPTURE, FOOLS"
+                CAPTURED = 1
+                IS_CAPTURING = 1
+                print "Is open:  {}".format(out.isOpened())
+            if IS_CAPTURING:
+                print "WRITING."
+                out.write(frame)
+
+                       
+        else:
             motionCounter = 0
+            if IS_CAPTURING:
+                print "DONE CAPTURING, FOOLS"
+                IS_CAPTURING = 0
+                out.release()
+                
 
-        cv2.imshow("Security Feed", frame)
+        add_status_and_timestamps(frame, text, timestamp)
+            
+        cv2.imshow("Feed", frame)
         key = cv2.waitKey(1) & 0xFF
         if key == ord("q"):
             break
