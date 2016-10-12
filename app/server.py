@@ -19,6 +19,7 @@ head_bucket = 'se329-project2'
 
 s3 = boto3.resource('s3')
 
+
 # Load default config and override config from an environment variable
 app.config.update(dict(
     SQLALCHEMY_DATABASE_URI=os.environ['DATABASE_URL'],
@@ -31,6 +32,8 @@ db = SQLAlchemy(app)
 
 login_manager = flask_login.LoginManager()
 login_manager.init_app(app)
+
+
 
 @app.route('/')
 def home():
@@ -140,7 +143,8 @@ def unauthorized():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    if request.method == 'GET':
+
+    if flask.request.method == 'GET':
         return render_template('login.html')
 
     email = request.form['email']
@@ -154,7 +158,12 @@ def login():
             return redirect('dashboard')
 
     # TODO:  Send a bad request result
-    return 'Bad login'
+
+    return redirect('login_failed')
+
+@app.route('/login_failed')
+def login_failed():
+    return render_template('login_failed.html')
 
 
 @app.route('/logout')
