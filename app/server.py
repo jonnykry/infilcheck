@@ -227,11 +227,8 @@ def dashboard():
         for key in bucket.objects.all():
             url = get_bucket_url(bucket.name, key.key)
             temp_user_id = key.key.rsplit('/', 1)[0]
-            print('userId: ' + temp_user_id)
-            print(url, file=sys.stderr)
 
-            # TODO:  Only allow user_ids
-            if temp_user_id == user_id:
+            if int(temp_user_id) == user_id:
                 url_list.append(url)
 
     username = user.email.rsplit('@', 1)[0]
@@ -242,20 +239,23 @@ def dashboard():
 @app.route('/upload', methods=['POST'])
 def upload_video():
     if request.method == 'POST':
-
-        data = request.data
-        pi_id = data['pi_id']
+        pi_id = request.form['piid']
         user_to_update = None
 
-        for user in db.session.query(User).filter(User.piid == pi_id):
+        for user in db.session.query(User).filter(User.pi_id == pi_id):
             user_to_update = user
             break
 
-        if 'file' not in request.files:
+        if user_to_update is None:
+            return redirect('server_error')
+
+        if not request.files:
             print('No file in POST request', file=sys.stderr)
             return redirect('dashboard')
 
-        file = request.files['file']
+        file = request.files.values()[0]
+        filename = file.filename
+        file.save('app/static/uploads/' + filename)
 
         bucket = s3.Bucket(head_bucket)
         exists = True
@@ -276,11 +276,11 @@ def upload_video():
         if not os.path.exists(filepath):
             os.makedirs(filepath)
 
-        filepath += '/temp.mp4'
+        filepath += '/' + filename
 
-        obj = s3.Object(head_bucket, user_id + '/temp.mp4')
+        obj = s3.Object(head_bucket, str(user_to_update.id) + '/' + str(uuid.uuid4()) + '.mov')
+        obj.put(Body=open('app/static/uploads/' + filename, 'rb'))
         obj.Acl().put(ACL='public-read')
-        obj.put(Body=file)
 
     return redirect('dashboard')
 
