@@ -287,7 +287,7 @@ def upload_video():
 
         filepath += '/' + filename
 
-        obj = s3.Object(head_bucket, str(user_to_update.id) + '/' + str(uuid.uuid4()) + '.mov')
+        obj = s3.Object(head_bucket, str(user_to_update.id) + '/' + str(uuid.uuid4()) + '.avi')
         obj.put(Body=open('app/static/uploads/' + filename, 'rb'))
         obj.Acl().put(ACL='public-read')
 
