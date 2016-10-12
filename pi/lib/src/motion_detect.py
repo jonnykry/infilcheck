@@ -2,109 +2,106 @@ from picamera.array import PiRGBArray
 from picamera import PiCamera
 
 import sys
+import requests
 import imutils
 import datetime
 import time
 import cv2
+import thread
+import os
 
-DEBUG = 0
+
+PI_ID = '66831094-726c-4cca-8bdb-49d492599c88'
+
+# Tracks the list of files to upload
+TO_UPLOAD = []
+
+# Tracks whether or not we are currently capturing a video
+IS_CAPTURING = False
+
+# The video writer
+OUT = None
+
+# The path of the file currently being captured
+CURRENT_CAPTURE = None
+
+# List of strings to print when exiting normally
+LOG = []
 
 
-
-"""
-
-THE FOLLOWING METHOD resize IS FROM jrosebr1's IMUTILS PACKAGE
-
-THE CODE CAN BE FOUND HERE:
-https://github.com/jrosebr1/imutils/blob/f28d4cd5e14910fa283f67db47e1a721b660fdfd/imutils/convenience.py
-
-"""
-
-def resize(image, width=None, height=None, inter=cv2.INTER_AREA):
-    # initialize the dimensions of the image to be resized and
-    # grab the image size
-    dim = None
-    (h, w) = image.shape[:2]
+def upload_thread():
     
-    # if both the width and height are None, then return the
-    # original image
-    if width is None and height is None:
-        return image
-    
-    # check to see if the width is None
-    if width is None:
-        # calculate the ratio of the height and construct the
-        # dimensions
-        r = height / float(h)
-        dim = (int(w * r), height)
-    
-    # otherwise, the height is None
-    else:
-        # calculate the ratio of the width and construct the
-        # dimensions
-        r = width / float(w)
-        dim = (width, int(h * r))
-    
-    # resize the image
-    resized = cv2.resize(image, dim, interpolation=inter)
-    
-    # return the resized image
-    return resized
+    while True:
+        while not TO_UPLOAD:
+            pass
+        filepath = TO_UPLOAD.pop(0)
+        print("UPLOAD STARTING:  " + filepath)
+        LOG.append("UPLOAD_STARTING:  " + filepath)
+        
+        r = requests.post('https://agile-lake-39375.herokuapp.com/upload', data={'piid': PI_ID}, files={filepath.split('\\')[-1]: open(filepath, 'rb')})        
+
+        if r.ok:
+            os.remove(filepath)
+            print("UPLOAD DONE :  " + filepath)
+            LOG.append("UPLOAD DONE :  " + filepath)
+
+        else:
+            print 'FUCK.  WHY??'
+            print 'INTERPRETED FILENAME:  ' + filepath.split('\\')[-1]
+            print 'FILEPATH:  ' + filepath
+
+
+
+
+        
 
 
 def add_status_and_timestamps(frame, text, timestamp):
     ts = timestamp.strftime("%A %d %B %Y %I:%M:%S%p")
-    cv2.putText(frame, "Room: {}".format(text), (10, 20), cv2.FONT_HERSHEY_PLAIN, 0.5, (0, 0, 255), 2)
-    cv2.putText(frame, ts, (10, frame.shape[0] - 10), cv2.FONT_HERSHEY_PLAIN, 0.35, (0, 0, 255), 1)
+    cv2.putText(frame, "Room: {}".format(text), (10, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
+    cv2.putText(frame, ts, (10, frame.shape[0] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.35, (0, 0, 255), 1)
 
     
-def debug_print(msg):
-    if DEBUG:
-        print(msg)
-
-        
-def parse_args(argv):
-
-    video = None
-    area = 500
-
-    global DEBUG
-
-    if '-d' in argv:
-        DEBUG = 1
-
-    if '-ns' in argv:
-        NOSCREEN = 1
-    
-    if '-v' in argv:
-        idx = argv.index('-v')
-        if idx + 1 != len(argv):
-            debug_print("Setting FILE to {}".format(argv[idx + 1]))
-            video = argv[idx + 1]
-    if '-a' in argv:
-        idx = argv.index('-a')
-        if idx + 1 != len(argv):
-            debug_print("Setting AREA to {}".format(argv[idx + 1]))
-            area = int(argv[idx + 1])
-
-    return {'vid': video, 'area': area}
-
-
 def wait_for_cam(max):
     ## TODO:  smart polling so we don't have to wait the whole time
     time.sleep(max)
 
+
+def init_video_writer(fourcc):
+    global IS_CAPTURING
+    global OUT
+    global CURRENT_CAPTURE
+    
+    path = "./" # TODO:  SET DYNAMICALLY
+    filename = str(datetime.datetime.now()).replace(" ", "_")[:-7] + ".avi"
+    OUT = cv2.VideoWriter(path + filename, fourcc, 10.0, (500, 375))
+    CURRENT_CAPTURE = path + filename
+    IS_CAPTURING = True
+
+    
+def stop_recording():
+    global IS_CAPTURING
+    global OUT
+    global CURRENT_CAPTURE
+    
+    print "DONE CAPTURING"
+    IS_CAPTURING = False
+    TO_UPLOAD.append(CURRENT_CAPTURE)
+    CURRENT_CAPTURE = None
+    OUT.release()
+    OUT = None
+    recordedFrames = 0
+
+
 def main():
+    global TO_UPLOAD
+    global IS_CAPTURING
+    global OUT
+    global CURRENT_CAPTURE
 
-    IS_CAPTURING = 0
-    CAPTURED = 0
-    fourcc = cv2.VideoWriter_fourcc(*'MJPG')
-    out = cv2.VideoWriter('output.avi',fourcc, 1.0, (500, 375))
-
+    # The video codec for cv2's VideoWriter
+    FOURCC = cv2.VideoWriter_fourcc(*'MJPG')
     
-    
-    args = parse_args(sys.argv)
-
     # TODO:  move to conf file
     CAPTURE_RESOLUTION = (640, 480)
 
@@ -115,21 +112,28 @@ def main():
     rawCapture = PiRGBArray(cam, size=CAPTURE_RESOLUTION)
 
     # wait for camera to warm up
-    time.sleep(0.1)
+    wait_for_cam(0.1)
 
     avg = None
     lastUploaded = datetime.datetime.now()
     motionCounter = 0
 
-    for f in cam.capture_continuous(rawCapture, format="bgr", use_video_port=True):
+    recordedFrames = 0
 
+    thread.start_new_thread(upload_thread, ())
+
+    occupied = False
+    text = ""
+    
+    for f in cam.capture_continuous(rawCapture, format="bgr", use_video_port=True):
+ 
         frame = f.array
         timestamp = datetime.datetime.now()
+        occupied = False
         text = "Unoccupied"
 
         #resize / convert the frame to grayscale
-        frame = resize(frame, width=500)
-        print frame.shape[:2]
+        frame = imutils.resize(frame, width=500)
         grayscale_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
         #apply gaussian blur
@@ -148,43 +152,54 @@ def main():
         # threshold the delta image, dilate the thresholded image to fill
         # in holes, then find contours on thresholded image
         thresh = cv2.threshold(frameDelta, 2, 255, cv2.THRESH_BINARY)[1]
-        thresh = cv2.dilate(thresh, None, iterations=6)
+        thresh = cv2.dilate(thresh, None, iterations=2)
         (__, cnts, _) = cv2.findContours(thresh.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
         for c in cnts:
-            if cv2.contourArea(c) < 500:
-                continue
+            if cv2.contourArea(c) >= 500:
+                occupied = True
+                break
+            
+        text = "Occupied" if occupied else "Unoccupied"
 
-            (x, y, w, h) = cv2.boundingRect(c)
-            cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
-            text = "Occupied"
-
-
-        if text == "Occupied":
+        add_status_and_timestamps(frame, text, timestamp)
+        
+        if occupied:
             motionCounter += 1
-            if motionCounter > 10 and not CAPTURED:
-                print "STARTING CAPTURE, FOOLS"
-                CAPTURED = 1
-                IS_CAPTURING = 1
-                print "Is open:  {}".format(out.isOpened())
-            if IS_CAPTURING:
-                print "WRITING."
-                out.write(frame)
 
+            # wait for X frames of motion to be sure
+            if motionCounter > 5 and OUT is None :
+                print "STARTING CAPTURE"
+                IS_CAPTURING = True
+                init_video_writer(FOURCC)
+
+
+            if IS_CAPTURING and OUT is not None and recordedFrames < 300:
+                recordedFrames += 1
+                print "WRITING FRAME " + str(recordedFrames)            
+                OUT.write(frame)
+
+            elif IS_CAPTURING and OUT and recordedFrames >= 300:
+                recordedFrames = 0
+                stop_recording()
                        
         else:
             motionCounter = 0
-            if IS_CAPTURING:
-                print "DONE CAPTURING, FOOLS"
-                IS_CAPTURING = 0
-                out.release()
-                
 
-        add_status_and_timestamps(frame, text, timestamp)
-            
+            if IS_CAPTURING:
+                recordedFrames = 0
+                stop_recording()
+
         cv2.imshow("Feed", frame)
         key = cv2.waitKey(1) & 0xFF
         if key == ord("q"):
+            print "To upload:  " + str(TO_UPLOAD)
+            print ""
+            print ""
+            print "LOG:"
+            for l in LOG:
+                print l
+            
             break
 
         rawCapture.truncate(0)
