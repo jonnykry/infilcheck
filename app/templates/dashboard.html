@@ -4,6 +4,7 @@
   <h1>{{ username }}'s Dashboard</h1>
   {% for url in urls %}
     <video src={{ url }} width="320" height="280" controls></video>
+    Download: <a href={{ url }}>{{ url }}</a>
   {% endfor %}
 </div>
 {% endblock %}
