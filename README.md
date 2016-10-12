@@ -40,7 +40,8 @@ set DATABASE_URL=postgresql://postgres:@localhost/infilcheck_dev
 
 Local Database Set-up:
 ```
-$ psql
+Open SQL Shell
+Sign in with database password only
 # create database infilcheck_dev;
 CREATE DATABASE
 # \q
