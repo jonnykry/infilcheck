@@ -264,7 +264,7 @@ def upload_video():
 
         file = request.files.values()[0]
         filename = file.filename
-        file.save('app/static/uploads/' + filename)
+        file.save('/tmp/uploads/' + filename)
 
         bucket = s3.Bucket(head_bucket)
         exists = True
@@ -281,14 +281,14 @@ def upload_video():
         if not exists:
             s3.create_bucket(head_bucket)
 
-        filepath = 'app/static/uploads'
+        filepath = '/tmp/uploads/'
         if not os.path.exists(filepath):
             os.makedirs(filepath)
 
         filepath += '/' + filename
 
         obj = s3.Object(head_bucket, str(user_to_update.id) + '/' + str(uuid.uuid4()) + '.avi')
-        obj.put(Body=open('app/static/uploads/' + filename, 'rb'))
+        obj.put(Body=open('/tmp/uploads/' + filename, 'rb'))
         obj.Acl().put(ACL='public-read')
 
     return redirect('dashboard')
