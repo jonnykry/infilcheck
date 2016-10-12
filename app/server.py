@@ -3,6 +3,7 @@ import os
 import sys
 import flask
 import uuid
+import ffmpy
 from flask import Flask, request, render_template, redirect , Response
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, \
@@ -287,8 +288,16 @@ def upload_video():
 
         filepath += '/' + filename
 
-        obj = s3.Object(head_bucket, str(user_to_update.id) + '/' + str(uuid.uuid4()) + '.avi')
-        obj.put(Body=open('/tmp/' + filename, 'rb'))
+        # Set filename to end in `.mp4` and place previous `/tmp/` video as new `/tmp/`
+        new_filename = filename.rsplit('.', 1)[0] + '.mp4'
+        in_filepath = '/tmp/' + filename
+        out_filepath = '/tmp/' + new_filename
+
+        ff = ffmpy.FFmpeg(inputs={in_filepath: None}, outputs={out_filepath: None})
+        ff.run()
+
+        obj = s3.Object(head_bucket, str(user_to_update.id) + '/' + new_filename)
+        obj.put(Body=open(out_filepath, 'rb'))
         obj.Acl().put(ACL='public-read')
 
     return redirect('dashboard')
