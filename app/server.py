@@ -287,8 +287,8 @@ def upload_video():
 
         filepath += '/' + filename
 
-        # Set filename to end in `.mp4` and place previous `/tmp/` video as new `/tmp/`
-        new_filename = filename.rsplit('.', 1)[0] + '.mp4'
+        # Set filename to end in `.ogg` and place previous `/tmp/` video as new `/tmp/`
+        new_filename = filename.rsplit('.', 1)[0] + '.ogg'
         in_filepath = '/tmp/' + filename
         out_filepath = '/tmp/' + new_filename
 
