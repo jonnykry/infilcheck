@@ -206,12 +206,6 @@ def settings():
     return render_template('settings.html', user_data = flask_login.current_user)
 
 
-@app.route('/live', methods=['GET', 'POST'])
-@flask_login.login_required
-def live():
-    return render_template('live.html')
-
-
 @app.route('/dashboard')
 @flask_login.login_required
 def dashboard():
