@@ -8,7 +8,7 @@ import os
 ## Debug Mode
 if __debug__:
         print 'Debug ON'
-        GPIO.setwarnings(True)
+        GPIO.setwarnings(False)
 
 else:
         print 'Debug OFF'
@@ -37,7 +37,7 @@ global blink_led4
 global blink_led5
 
 ## Blink Speed
-blink_speed = 0.05
+blink_speed = 0.5
 
 ## Setup LEDs
 GPIO.setup(LED1, GPIO.OUT) ## Setup GPIO Pin 11 to OUT
@@ -173,4 +173,7 @@ def blink_led5_stop_process():
 	global blink_led5
 	blink_led5.terminate()
 
+## Cleanup
+def cleanup_gpio():
+	    GPIO.cleanup()
 
