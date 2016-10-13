@@ -293,7 +293,7 @@ def upload_video():
         in_filepath = '/tmp/' + filename
         out_filepath = '/tmp/' + new_filename
 
-        ff = ffmpy.FFmpeg(inputs={in_filepath: None}, outputs={out_filepath: '-c:v h264'})
+        ff = ffmpy.FFmpeg(inputs={in_filepath: None}, outputs={out_filepath: '-c:v h263p'})
         ff.run()
 
         obj = s3.Object(head_bucket, str(user_to_update.id) + '/' + new_filename)
