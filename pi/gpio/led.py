@@ -16,6 +16,12 @@ else:
 
 GPIO.setmode(GPIO.BOARD) ## Use board pin numbering
 ## Variable LED for PIN
+global LED1
+global LED2
+global LED3
+global LED4
+global LED5
+
 LED1 = 11
 LED2 = 13
 LED3 = 15
@@ -23,12 +29,12 @@ LED4 = 12
 LED5 = 16
 
 ## Bool variables for blink continous func
-global p   
-blink_led1 = False
-blink_led2 = False
-blink_led3 = False
-blink_led4 = False
-blink_led5 = False
+   
+global blink_led1
+global blink_led2
+global blink_led3
+global blink_led4
+global blink_led5
 
 ## Blink Speed
 blink_speed = 0.05
@@ -88,29 +94,83 @@ def blink_thread(numTimes, speed, LED_NUM):
 		print "Error: unable to start thread"
 
 def blink_led1_start():
-	blink_led1 = True 
-	while(blink_led1):
+	while(1):
 		GPIO.output(LED1,True)## Switch on LED_NUM
-                time.sleep(blink_speed)## Wait
-                GPIO.output(LED1,False)## Switch off LED_NUM
-                time.sleep(blink_speed)## Wait
-
-def blink_led1_start_thread():
-	try:
-                thread.start_new_thread(blink_led1_start,())
-	except:
-                print "Error: unable to start thread"
-
-def blink_led1_stop():
-	blink_led1 = False
-
-p = Process(target=blink_led1_start, args=())
+        time.sleep(blink_speed)## Wait
+        GPIO.output(LED1,False)## Switch off LED_NUM
+        time.sleep(blink_speed)## Wait
 
 def blink_led1_start_process():
-	global p
-	p.start()
+	global blink_led1
+	blink_led1 = Process(target=blink_led1_start, args=())
+	blink_led1.start()
 
 def blink_led1_stop_process():
-	global p
-	p.terminate()
+	global blink_led1
+	blink_led1.terminate()
+
+def blink_led2_start():
+	while(1):
+		GPIO.output(LED2,True)## Switch on LED_NUM
+        time.sleep(blink_speed)## Wait
+        GPIO.output(LED2,False)## Switch off LED_NUM
+        time.sleep(blink_speed)## Wait
+
+def blink_led2_start_process():
+	global blink_led2
+	blink_led2 = Process(target=blink_led2_start, args=())
+	blink_led2.start()
+
+def blink_led2_stop_process():
+	global blink_led2
+	blink_led2.terminate()
+
+def blink_led3_start():
+	while(1):
+		GPIO.output(LED3,True)## Switch on LED_NUM
+        time.sleep(blink_speed)## Wait
+        GPIO.output(LED3,False)## Switch off LED_NUM
+        time.sleep(blink_speed)## Wait
+
+def blink_led3_start_process():
+	global blink_led3
+	blink_led3 = Process(target=blink_led3_start, args=())
+	blink_led3.start()
+
+def blink_led3_stop_process():
+	global blink_led3
+	blink_led3.terminate()
+
+def blink_led4_start():
+	while(1):
+		GPIO.output(LED4,True)## Switch on LED_NUM
+        time.sleep(blink_speed)## Wait
+        GPIO.output(LED4,False)## Switch off LED_NUM
+        time.sleep(blink_speed)## Wait
+
+def blink_led4_start_process():
+	global blink_led4
+	blink_led4 = Process(target=blink_led4_start, args=())
+	blink_led4.start()
+
+def blink_led4_stop_process():
+	global blink_led4
+	blink_led4.terminate()
+
+def blink_led5_start():
+	while(1):
+		GPIO.output(LED5,True)## Switch on LED_NUM
+        time.sleep(blink_speed)## Wait
+        GPIO.output(LED5,False)## Switch off LED_NUM
+        time.sleep(blink_speed)## Wait
+
+def blink_led5_start_process():
+	global blink_led5
+	blink_led5 = Process(target=blink_led5_start, args=())
+	blink_led5.start()
+
+def blink_led5_stop_process():
+	global blink_led5
+	blink_led5.terminate()
+
 
