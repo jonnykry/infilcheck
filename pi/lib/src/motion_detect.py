@@ -1,6 +1,6 @@
 from picamera.array import PiRGBArray
 from picamera import PiCamera
-
+from led import *
 import sys
 import requests
 import imutils
@@ -161,10 +161,12 @@ def main():
         add_status_and_timestamps(frame, text, timestamp)
         
         if occupied:
+            blink_led5()
             motionCounter += 1
 
             # wait for X frames of motion to be sure
             if motionCounter > 5 and OUT is None :
+                blink_led4()
                 print "STARTING CAPTURE"
                 IS_CAPTURING = True
                 init_video_writer(FOURCC)
