@@ -239,7 +239,7 @@ def dashboard():
             temp_user_id = key.key.rsplit('/', 1)[0]
             file_ext = key.key.rsplit('/', 1)[1]
 
-            if int(temp_user_id) == user_id:
+            if int(temp_user_id) == user_id and url not in url_list:
                 url_list.append(url)
 
     username = user.email.rsplit('@', 1)[0]
