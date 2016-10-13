@@ -302,7 +302,7 @@ def upload_video():
         obj.Acl().put(ACL='public-read')
 
         obj2 = s3.Object(head_bucket, str(user_to_update.id) + '/' + filename)
-        obj.put(Body=open(in_filepath, 'rb'))
+        obj2.put(Body=open(in_filepath, 'rb'))
         obj2.Acl().put(ACL='public-read')
 
     return redirect('dashboard')
