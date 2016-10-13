@@ -39,8 +39,8 @@ LOG = []
 ## LED5
 
 def upload_thread():
-    
-    while True:
+    blink_led3()
+    while True:    
         while not TO_UPLOAD:
             pass
         filepath = TO_UPLOAD.pop(0)
@@ -53,13 +53,13 @@ def upload_thread():
             os.remove(filepath)
             print("UPLOAD DONE :  " + filepath)
             LOG.append("UPLOAD DONE :  " + filepath)
-            blink_led1_stop()
+           
 
         else:
             print 'POST failed'
             print 'INTERPRETED FILENAME:  ' + filepath.split('\\')[-1]
             print 'FILEPATH:  ' + filepath
-            blink_led1_stop() 
+    blink_led3_stop()     
             
 def add_status_and_timestamps(frame, text, timestamp):
     ts = timestamp.strftime("%A %d %B %Y %I:%M:%S%p")
@@ -69,8 +69,9 @@ def add_status_and_timestamps(frame, text, timestamp):
     
 def wait_for_cam(max):
     ## TODO:  smart polling so we don't have to wait the whole time
+    led4_on()
     time.sleep(max)
-
+    led4_off()
 
 def init_video_writer(fourcc):
     global IS_CAPTURING
@@ -132,7 +133,7 @@ def main():
     text = ""
     
     for f in cam.capture_continuous(rawCapture, format="bgr", use_video_port=True):
-        
+        led1_on() 
         frame = f.array
         timestamp = datetime.datetime.now()
         occupied = False
@@ -171,7 +172,7 @@ def main():
         add_status_and_timestamps(frame, text, timestamp)
         
         if occupied:
-            blink_led1()  
+            led2_on()  
             motionCounter += 1
 
             # wait for X frames of motion to be sure
@@ -191,10 +192,11 @@ def main():
             elif IS_CAPTURING and OUT and recordedFrames >= 300:
                 recordedFrames = 0
                 stop_recording()
+                led2_off()
                 
                        
         else:
-            blink_led1_stop()
+            led2_off()
             motionCounter = 0
 
             if IS_CAPTURING:
