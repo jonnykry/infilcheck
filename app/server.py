@@ -234,12 +234,12 @@ def dashboard():
 
     if exists:
         for key in bucket.objects.all():
-            url = get_bucket_url(bucket.name, key.key)
+            url = get_bucket_url(bucket.name, key.key.rsplit('.', 1)[0])
             temp_user_id = key.key.rsplit('/', 1)[0]
-            url_name = key.key.rsplit('.', 1)[0]
+            file_ext = key.key.rsplit('/', 1)[1]
 
             if int(temp_user_id) == user_id:
-                url_list.append(url_name)
+                url_list.append(url)
 
     username = user.email.rsplit('@', 1)[0]
 
