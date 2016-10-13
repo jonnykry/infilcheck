@@ -65,5 +65,5 @@ def rc_time (pin_to_circuit):
 
     return count
 
-def cleanup:
+def cleanup():
     GPIO.cleanup()
