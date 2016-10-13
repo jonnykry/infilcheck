@@ -28,7 +28,7 @@ LED3 = 15
 LED4 = 12
 LED5 = 16
 
-## Bool variables for blink continous func
+## Thread variables for blink continous func
    
 global p_led1
 global p_led2
@@ -37,7 +37,7 @@ global p_led4
 global p_led5
 
 ## Blink Speed
-blink_speed = 0.05
+blink_speed = 0.25
 
 ## Setup LEDs
 GPIO.setup(LED1, GPIO.OUT) ## Setup GPIO Pin 11 to OUT
@@ -173,7 +173,7 @@ def blink_led5():
 	p_led5 = Process(target=blink_led5_start, args=())
 	blink_led5.start()
 
-def blink_led5():
+def blink_led5_stop():
 	global p_led5
 	p_led5.terminate()
 	led5_off()
