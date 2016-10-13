@@ -32,17 +32,18 @@ CURRENT_CAPTURE = None
 # List of strings to print when exiting normally
 LOG = []
 
-## LED1
-## LED2
-## LED3
-## LED4
-## LED5
+## LED1 While recording
+## LED2 While occupied
+## LED3 While upload
+## LED4 Wait for cam
+## LED5 LOW Light
 
 def upload_thread():
-    blink_led3()
+    
     while True:    
         while not TO_UPLOAD:
             pass
+        blink_led3()
         filepath = TO_UPLOAD.pop(0)
         print("UPLOAD STARTING:  " + filepath)
         LOG.append("UPLOAD_STARTING:  " + filepath)
@@ -50,16 +51,18 @@ def upload_thread():
         r = requests.post('https://agile-lake-39375.herokuapp.com/upload', data={'piid': PI_ID}, files={filepath.split('\\')[-1]: open(filepath, 'rb')})        
 
         if r.ok:
+            blink_led3_stop()
             os.remove(filepath)
             print("UPLOAD DONE :  " + filepath)
             LOG.append("UPLOAD DONE :  " + filepath)
            
 
         else:
+            blink_led3_stop()
             print 'POST failed'
             print 'INTERPRETED FILENAME:  ' + filepath.split('\\')[-1]
             print 'FILEPATH:  ' + filepath
-    blink_led3_stop()     
+         
             
 def add_status_and_timestamps(frame, text, timestamp):
     ts = timestamp.strftime("%A %d %B %Y %I:%M:%S%p")
