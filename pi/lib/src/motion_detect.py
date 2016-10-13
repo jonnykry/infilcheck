@@ -32,6 +32,11 @@ CURRENT_CAPTURE = None
 # List of strings to print when exiting normally
 LOG = []
 
+## LED3 blinks while uploading
+## LED1 blinks while camera on
+## LED5 blinks while occupied
+## LED4 blinks while capturing
+## LED2 on while dark TODO
 
 def upload_thread():
     
@@ -41,13 +46,14 @@ def upload_thread():
         filepath = TO_UPLOAD.pop(0)
         print("UPLOAD STARTING:  " + filepath)
         LOG.append("UPLOAD_STARTING:  " + filepath)
-        
+        blink_led3()
         r = requests.post('https://agile-lake-39375.herokuapp.com/upload', data={'piid': PI_ID}, files={filepath.split('\\')[-1]: open(filepath, 'rb')})        
 
         if r.ok:
             os.remove(filepath)
             print("UPLOAD DONE :  " + filepath)
             LOG.append("UPLOAD DONE :  " + filepath)
+            blink_led3_stop()
 
         else:
             print 'POST failed'
@@ -59,7 +65,7 @@ def add_status_and_timestamps(frame, text, timestamp):
     ts = timestamp.strftime("%A %d %B %Y %I:%M:%S%p")
     cv2.putText(frame, "Room: {}".format(text), (10, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
     cv2.putText(frame, ts, (10, frame.shape[0] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.35, (0, 0, 255), 1)
-
+    ##TODO add in light value
     
 def wait_for_cam(max):
     ## TODO:  smart polling so we don't have to wait the whole time
@@ -98,6 +104,7 @@ def main():
     global OUT
     global CURRENT_CAPTURE
 
+
     # The video codec for cv2's VideoWriter
     FOURCC = cv2.VideoWriter_fourcc(*'MJPG')
     
@@ -125,7 +132,7 @@ def main():
     text = ""
     
     for f in cam.capture_continuous(rawCapture, format="bgr", use_video_port=True):
- 
+        blink_led1()
         frame = f.array
         timestamp = datetime.datetime.now()
         occupied = False
@@ -183,8 +190,10 @@ def main():
             elif IS_CAPTURING and OUT and recordedFrames >= 300:
                 recordedFrames = 0
                 stop_recording()
+                blink_led4_stop()
                        
         else:
+            blink_led5_stop()
             motionCounter = 0
 
             if IS_CAPTURING:
@@ -204,7 +213,8 @@ def main():
             break
 
         rawCapture.truncate(0)
-        
+
+    blink_led1_stop()    
     return
 
 
