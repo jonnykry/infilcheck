@@ -37,7 +37,7 @@ global p_led4
 global p_led5
 
 ## Blink Speed
-blink_speed = 0.25
+blink_speed = 0.5
 
 ## Setup LEDs
 GPIO.setup(LED1, GPIO.OUT) ## Setup GPIO Pin 11 to OUT
