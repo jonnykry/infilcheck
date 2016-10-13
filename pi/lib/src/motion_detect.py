@@ -39,7 +39,7 @@ LOG = []
 ## LED5
 
 def upload_thread():
-    blinK_led1()
+    blink_led1()
     while True:
         while not TO_UPLOAD:
             pass
@@ -59,7 +59,7 @@ def upload_thread():
             print 'POST failed'
             print 'INTERPRETED FILENAME:  ' + filepath.split('\\')[-1]
             print 'FILEPATH:  ' + filepath
-    blinK_led1_stop()
+    blink_led1_stop()
             
 def add_status_and_timestamps(frame, text, timestamp):
     ts = timestamp.strftime("%A %d %B %Y %I:%M:%S%p")
