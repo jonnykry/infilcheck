@@ -39,7 +39,7 @@ LOG = []
 ## LED5
 
 def upload_thread():
-    blink_led1()
+    
     while True:
         while not TO_UPLOAD:
             pass
@@ -171,7 +171,7 @@ def main():
         add_status_and_timestamps(frame, text, timestamp)
         
         if occupied:
-          
+            led1_on()  
             motionCounter += 1
 
             # wait for X frames of motion to be sure
@@ -184,16 +184,17 @@ def main():
 
             if IS_CAPTURING and OUT is not None and recordedFrames < 300:
                 recordedFrames += 1
-                print "WRITING FRAME " + str(recordedFrames)            
+                print "WRITING FRAME " + str(recordedFrames) 
+                         
                 OUT.write(frame)
 
             elif IS_CAPTURING and OUT and recordedFrames >= 300:
                 recordedFrames = 0
                 stop_recording()
-                blink_led4_stop()
+                
                        
         else:
-            
+            led1_off()
             motionCounter = 0
 
             if IS_CAPTURING:
