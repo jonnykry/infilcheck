@@ -237,9 +237,10 @@ def dashboard():
         for key in bucket.objects.all():
             url = get_bucket_url(bucket.name, key.key)
             temp_user_id = key.key.rsplit('/', 1)[0]
+            url_name = key.key.rsplit('.', 1)[0]
 
             if int(temp_user_id) == user_id:
-                url_list.append(url)
+                url_list.append(url_name)
 
     username = user.email.rsplit('@', 1)[0]
 
@@ -299,6 +300,10 @@ def upload_video():
         obj = s3.Object(head_bucket, str(user_to_update.id) + '/' + new_filename)
         obj.put(Body=open(out_filepath, 'rb'))
         obj.Acl().put(ACL='public-read')
+
+        obj2 = s3.Object(head_bucket, str(user_to_update.id) + '/' + filename)
+        obj.put(Body=open(in_filepath, 'rb'))
+        obj2.Acl().put(ACL='public-read')
 
     return redirect('dashboard')
 
