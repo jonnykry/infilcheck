@@ -1,6 +1,8 @@
 from picamera.array import PiRGBArray
 from picamera import PiCamera
-from led import *
+
+
+
 import sys
 import requests
 import imutils
@@ -9,7 +11,8 @@ import time
 import cv2
 import thread
 import os
-
+sys.path.insert(0, '../gpio/')
+from led import *
 
 
 PI_ID = 'e51b6577-85ca-4360-bcef-0c83452e24f2'
