@@ -171,7 +171,7 @@ def main():
         add_status_and_timestamps(frame, text, timestamp)
         
         if occupied:
-            led1_on()  
+            blink_led1()  
             motionCounter += 1
 
             # wait for X frames of motion to be sure
@@ -194,7 +194,7 @@ def main():
                 
                        
         else:
-            led1_off()
+            blink_led1_stop()
             motionCounter = 0
 
             if IS_CAPTURING:
