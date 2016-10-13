@@ -12,6 +12,7 @@ import cv2
 import thread
 import os
 sys.path.insert(0, '../../gpio/')
+from light_sensor import *
 from led import *
 
 
@@ -66,6 +67,7 @@ def upload_thread():
             
 def add_status_and_timestamps(frame, text, timestamp):
     ts = timestamp.strftime("%A %d %B %Y %I:%M:%S%p")
+    print light_sense()
     cv2.putText(frame, "Room: {}".format(text), (10, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
     cv2.putText(frame, ts, (10, frame.shape[0] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.35, (0, 0, 255), 1)
     ##TODO add in light value
