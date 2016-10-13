@@ -11,7 +11,7 @@ import time
 import cv2
 import thread
 import os
-sys.path.insert(0, '../gpio/')
+sys.path.insert(0, '../../gpio/')
 from led import *
 
 
