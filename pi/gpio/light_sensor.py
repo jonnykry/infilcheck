@@ -8,7 +8,7 @@ GPIO.setmode(GPIO.BOARD)
 #define the pin that goes to the circuit
 pin_to_circuit = 7
 
-def light_sense_value:
+def light_sense_value():
     count = 0
   
     #Output on the pin for 
@@ -25,7 +25,7 @@ def light_sense_value:
 
     return count
 
-def light_sense_estimate:
+def light_sense_estimate():
     count = 0
   
     #Output on the pin for 
