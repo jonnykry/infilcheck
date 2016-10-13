@@ -11,7 +11,11 @@ import thread
 import os
 
 
-PI_ID = '66831094-726c-4cca-8bdb-49d492599c88'
+
+
+PI_ID = '7cce1833-3e9a-4e92-816d-262d7a1e67c0'
+
+
 
 # Tracks the list of files to upload
 TO_UPLOAD = []
@@ -46,16 +50,11 @@ def upload_thread():
             LOG.append("UPLOAD DONE :  " + filepath)
 
         else:
-            print 'FUCK.  WHY??'
+            print 'POST failed'
             print 'INTERPRETED FILENAME:  ' + filepath.split('\\')[-1]
             print 'FILEPATH:  ' + filepath
 
-
-
-
-        
-
-
+            
 def add_status_and_timestamps(frame, text, timestamp):
     ts = timestamp.strftime("%A %d %B %Y %I:%M:%S%p")
     cv2.putText(frame, "Room: {}".format(text), (10, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
@@ -73,7 +72,7 @@ def init_video_writer(fourcc):
     global CURRENT_CAPTURE
     
     path = "./" # TODO:  SET DYNAMICALLY
-    filename = str(datetime.datetime.now()).replace(" ", "_")[:-7] + ".avi"
+    filename = str(datetime.datetime.now()).replace(" ", "_").replace(":","_")[:-7] + ".avi"
     OUT = cv2.VideoWriter(path + filename, fourcc, 10.0, (500, 375))
     CURRENT_CAPTURE = path + filename
     IS_CAPTURING = True

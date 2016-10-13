@@ -1,6 +1,8 @@
 import RPi.GPIO as GPIO ## Import GPIO library
 import time		## Import Time Library for sleep
 import thread		## Import Thread for blinking
+from multiprocessing import Process
+import os
 
 
 ## Debug Mode
@@ -21,7 +23,7 @@ LED4 = 12
 LED5 = 16
 
 ## Bool variables for blink continous func
-global blink_led1
+global p   
 blink_led1 = False
 blink_led2 = False
 blink_led3 = False
@@ -102,4 +104,13 @@ def blink_led1_start_thread():
 def blink_led1_stop():
 	blink_led1 = False
 
+p = Process(target=blink_led1_start, args=())
+
+def blink_led1_start_process():
+	global p
+	p.start()
+
+def blink_led1_stop_process():
+	global p
+	p.terminate()
 
