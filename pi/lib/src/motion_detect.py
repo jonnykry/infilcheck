@@ -53,13 +53,13 @@ def upload_thread():
             os.remove(filepath)
             print("UPLOAD DONE :  " + filepath)
             LOG.append("UPLOAD DONE :  " + filepath)
-          
+            blink_led1_stop()
 
         else:
             print 'POST failed'
             print 'INTERPRETED FILENAME:  ' + filepath.split('\\')[-1]
             print 'FILEPATH:  ' + filepath
-    blink_led1_stop()
+            blink_led1_stop() 
             
 def add_status_and_timestamps(frame, text, timestamp):
     ts = timestamp.strftime("%A %d %B %Y %I:%M:%S%p")
