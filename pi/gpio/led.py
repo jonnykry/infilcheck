@@ -96,9 +96,9 @@ def blink_thread(numTimes, speed, LED_NUM):
 def blink_led1_start():
 	while(1):
 		GPIO.output(LED1,True)## Switch on LED_NUM
-    	time.sleep(blink_speed)## Wait
-    	GPIO.output(LED1,False)## Switch off LED_NUM
-    	time.sleep(blink_speed)## Wait
+		time.sleep(blink_speed)## Wait
+		GPIO.output(LED1,False)## Switch off LED_NUM
+		time.sleep(blink_speed)## Wait
 
 def blink_led1():
 	global p_led1
@@ -113,9 +113,9 @@ def blink_led1_stop():
 def blink_led2_start():
 	while(1):
 		GPIO.output(LED2,True)## Switch on LED_NUM
-    	time.sleep(blink_speed)## Wait
-    	GPIO.output(LED2,False)## Switch off LED_NUM
-    	time.sleep(blink_speed)## Wait
+		time.sleep(blink_speed)## Wait
+		GPIO.output(LED2,False)## Switch off LED_NUM
+		time.sleep(blink_speed)## Wait
 
 def blink_led2():
 	global p_led2
@@ -130,9 +130,9 @@ def blink_led2_stop():
 def blink_led3_start():
 	while(1):
 		GPIO.output(LED3,True)## Switch on LED_NUM
-    	time.sleep(blink_speed)## Wait
-    	GPIO.output(LED3,False)## Switch off LED_NUM
-    	time.sleep(blink_speed)## Wait
+		time.sleep(blink_speed)## Wait
+		GPIO.output(LED3,False)## Switch off LED_NUM
+		time.sleep(blink_speed)## Wait
 
 def blink_led3():
 	global p_led3
@@ -147,9 +147,9 @@ def blink_led3_stop():
 def blink_led4_start():
 	while(1):
 		GPIO.output(LED4,True)## Switch on LED_NUM
-    	time.sleep(blink_speed)## Wait
-    	GPIO.output(LED4,False)## Switch off LED_NUM
-    	time.sleep(blink_speed)## Wait
+		time.sleep(blink_speed)## Wait
+		GPIO.output(LED4,False)## Switch off LED_NUM
+		time.sleep(blink_speed)## Wait
 
 def blink_led4():
 	global p_led4
@@ -164,9 +164,9 @@ def blink_led4_stop():
 def blink_led5_start():
 	while(1):
 		GPIO.output(LED5,True)## Switch on LED_NUM
-    	time.sleep(blink_speed)## Wait
-    	GPIO.output(LED5,False)## Switch off LED_NUM
-    	time.sleep(blink_speed)## Wait
+		time.sleep(blink_speed)## Wait
+		GPIO.output(LED5,False)## Switch off LED_NUM
+		time.sleep(blink_speed)## Wait
 
 def blink_led5():
 	global p_led5
@@ -180,5 +180,5 @@ def blink_led5_stop():
 
 ## Cleanup
 def cleanup_gpio():
-	    GPIO.cleanup()
+	GPIO.cleanup()
 
