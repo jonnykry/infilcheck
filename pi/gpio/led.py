@@ -171,7 +171,7 @@ def blink_led5_start():
 def blink_led5():
 	global p_led5
 	p_led5 = Process(target=blink_led5_start, args=())
-	blink_led5.start()
+	p_led5.start()
 
 def blink_led5_stop():
 	global p_led5
