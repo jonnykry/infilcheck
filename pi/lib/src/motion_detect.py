@@ -32,34 +32,34 @@ CURRENT_CAPTURE = None
 # List of strings to print when exiting normally
 LOG = []
 
-## LED3 blinks while uploading
-## LED1 blinks while camera on
-## LED5 blinks while occupied
-## LED4 blinks while capturing
-## LED2 on while dark TODO
+## LED1
+## LED2
+## LED3
+## LED4
+## LED5
 
 def upload_thread():
-    
+    blinK_led1()
     while True:
         while not TO_UPLOAD:
             pass
         filepath = TO_UPLOAD.pop(0)
         print("UPLOAD STARTING:  " + filepath)
         LOG.append("UPLOAD_STARTING:  " + filepath)
-        blink_led3()
+      
         r = requests.post('https://agile-lake-39375.herokuapp.com/upload', data={'piid': PI_ID}, files={filepath.split('\\')[-1]: open(filepath, 'rb')})        
 
         if r.ok:
             os.remove(filepath)
             print("UPLOAD DONE :  " + filepath)
             LOG.append("UPLOAD DONE :  " + filepath)
-            blink_led3_stop()
+          
 
         else:
             print 'POST failed'
             print 'INTERPRETED FILENAME:  ' + filepath.split('\\')[-1]
             print 'FILEPATH:  ' + filepath
-
+    blinK_led1_stop()
             
 def add_status_and_timestamps(frame, text, timestamp):
     ts = timestamp.strftime("%A %d %B %Y %I:%M:%S%p")
@@ -132,7 +132,7 @@ def main():
     text = ""
     
     for f in cam.capture_continuous(rawCapture, format="bgr", use_video_port=True):
-        blink_led1()
+        
         frame = f.array
         timestamp = datetime.datetime.now()
         occupied = False
@@ -171,12 +171,12 @@ def main():
         add_status_and_timestamps(frame, text, timestamp)
         
         if occupied:
-            blink_led5()
+          
             motionCounter += 1
 
             # wait for X frames of motion to be sure
             if motionCounter > 5 and OUT is None :
-                blink_led4()
+               
                 print "STARTING CAPTURE"
                 IS_CAPTURING = True
                 init_video_writer(FOURCC)
@@ -193,7 +193,7 @@ def main():
                 blink_led4_stop()
                        
         else:
-            blink_led5_stop()
+            
             motionCounter = 0
 
             if IS_CAPTURING:
@@ -214,7 +214,7 @@ def main():
 
         rawCapture.truncate(0)
 
-    blink_led1_stop()    
+    
     return
 
 
