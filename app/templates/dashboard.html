@@ -3,7 +3,7 @@
 <div class="container">
   <h1>{{ username }}'s Dashboard</h1>
   {% for url in urls %}
-    <video src={{ url }} width="320" height="280" controls></video>
+    <img src={{ url }} width="320" height="280"></img>
     <div>Download: <a href={{ url }}>{{ url }}</a></div>
   {% endfor %}
 </div>

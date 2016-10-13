@@ -287,12 +287,12 @@ def upload_video():
 
         filepath += '/' + filename
 
-        # Set filename to end in `.mp4` and place previous `/tmp/` video as new `/tmp/`
-        new_filename = filename.rsplit('.', 1)[0] + '.mp4'
+        # Set filename to end in `.gif` and place previous `/tmp/` video as new `/tmp/`
+        new_filename = filename.rsplit('.', 1)[0] + '.gif'
         in_filepath = '/tmp/' + filename
         out_filepath = '/tmp/' + new_filename
 
-        ff = ffmpy.FFmpeg(inputs={in_filepath: None}, outputs={out_filepath: '-c:v h263p'})
+        ff = ffmpy.FFmpeg(inputs={in_filepath: None}, outputs={out_filepath: None})
         ff.run()
 
         obj = s3.Object(head_bucket, str(user_to_update.id) + '/' + new_filename)
