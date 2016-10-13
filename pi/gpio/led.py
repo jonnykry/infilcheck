@@ -102,12 +102,12 @@ def blink_led1_start():
 
 def blink_led1_start_process():
 	global blink_led1
-	blink_led1 = Process(target=blink_led1_start, args=())
-	blink_led1.start()
+	global blink_led1 = Process(target=blink_led1_start, args=())
+	global blink_led1.start()
 
 def blink_led1_stop_process():
 	global blink_led1
-	blink_led1.terminate()
+	global blink_led1.terminate()
 
 def blink_led2_start():
 	while(1):
