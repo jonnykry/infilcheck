@@ -26,12 +26,12 @@ def light_sense():
     while (GPIO.input(pin_to_circuit) == GPIO.LOW):
         count += 1
 
-    if (count > 2000):
+    if (count > 3000):
         led5_on()
-        return "Dark"
+        return count
     else:
         led5_off()
-        return "Light"
+        return count
 
 
 
