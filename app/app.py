@@ -2,99 +2,43 @@ from __future__ import print_function
 import os
 import sys
 import flask
-import uuid
 import ffmpy
-from flask import Flask, request, render_template, redirect , Response
-from flask_sqlalchemy import SQLAlchemy
-from werkzeug.security import generate_password_hash, \
-     check_password_hash
+from flask import request, render_template, redirect
 import flask_login
-import boto3
 import botocore
-
-app = Flask(__name__, template_folder='templates')
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.secret_key = 'super duper secret key xD'
-
-head_bucket = 'se329-project2'
-
-s3 = boto3.resource('s3')
-
-
-# Load default config and override config from an environment variable
-app.config.update(dict(
-    SQLALCHEMY_DATABASE_URI=os.environ['DATABASE_URL'],
-    DEBUG=True,
-    USERNAME='admin',
-    PASSWORD='admin',
-))
-
-db = SQLAlchemy(app)
+from __init__ import db, app, s3, head_bucket
+from models.user import User
 
 login_manager = flask_login.LoginManager()
 login_manager.init_app(app)
-
 
 
 @app.route('/')
 def home():
     return dashboard()
 
-class User(db.Model):
-    __tablename__ = 'user'
-
-    id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String(120), unique=True)
-    phone = db.Column(db.String(12), unique=True)
-    passhash = db.Column(db.String(120), unique=True)
-    pi_id = db.Column(db.String(120), unique=True)
-
-    def __init__(self, email, password, phone):
-        self.email = email
-        self.set_password(password)
-        self.phone = phone
-        self.pi_id = str(uuid.uuid4())
-
-    def set_password(self, password):
-        self.passhash = generate_password_hash(password)
-
-    def check_password(self, password):
-        return check_password_hash(self.passhash, password)
-
-    def is_active(self):
-        """True, as all users are active."""
-        return True
-
-    def get_id(self):
-        """Return the email address to satisfy Flask-Login's requirements."""
-        return self.email
-
-    def is_authenticated(self):
-        """Return True if the user is authenticated."""
-        return self.authenticated
-
-    def is_anonymous(self):
-        """False, as anonymous users aren't supported."""
-        return False
-
 
 @app.errorhandler(403)
 def forbidden_page(error):
+    print('Error: ' + str(error), file=sys.stderr)
     return render_template("access_forbidden.html"), 403
 
 
 @app.errorhandler(404)
 def page_not_found(error):
+    print('Error: ' + str(error), file=sys.stderr)
     return render_template("page_not_found.html"), 404
 
 
 @app.errorhandler(405)
 def method_not_allowed_page(error):
+    print('Error: ' + str(error), file=sys.stderr)
     return render_template("method_not_allowed.html"), 405
 
 
 @app.errorhandler(500)
 def server_error_page(error):
+    print('Error: ' + str(error), file=sys.stderr)
     return render_template("server_error.html"), 500
 
 
@@ -103,12 +47,11 @@ def user_loader(email):
     users = db.session.query(User).filter(User.email == email)
 
     if users is None:
-        return;
+        return
 
     temp_user = None
 
     for user in users:
-        print('User loader: ' + user.email, file=sys.stderr)
         temp_user = user
 
     if temp_user is None:
@@ -126,15 +69,17 @@ def request_loader(request):
 
     password = request.form['pw']
 
-    for user in db.session.query(User).filter(User.email == email):
-        print('User loader: ' + user.email, file=sys.stderr)
+    loaded_user = None
 
+    # TODO:  Why the loop here if we only want one???
+    for user in db.session.query(User).filter(User.email == email):
         if user is None:
             return
 
         user.is_authenticated = user.check_password(password)
+        loaded_user = user
 
-    return user
+    return loaded_user
 
 
 @login_manager.unauthorized_handler
@@ -162,6 +107,7 @@ def login():
 
     return redirect('login_failed')
 
+
 @app.route('/login_failed')
 def login_failed():
     return render_template('login_failed.html')
@@ -181,7 +127,6 @@ def register():
         phone = flask.request.form['phone']
 
         if email is not None and password is not None and phone is not None:
-            print('Creating user: ' + email + ' ' + password, file=sys.stderr)
             user = User(email, password, phone)
             db.session.add(user)
             db.session.commit()
@@ -190,7 +135,7 @@ def register():
 
             return redirect('dashboard')
         else:
-            print('Error creating user: ' + email, file=sys.stderr)
+            print('Error creating user: ' + str(email), file=sys.stderr)
 
     return render_template('register.html')
 
@@ -210,7 +155,7 @@ def settings():
 @app.route('/dashboard')
 @flask_login.login_required
 def dashboard():
-    user = username = flask_login.current_user
+    user = flask_login.current_user
     user_id = user.id
 
     bucket = s3.Bucket(head_bucket)
@@ -231,7 +176,6 @@ def dashboard():
         for key in bucket.objects.all():
             url = get_bucket_url(bucket.name, key.key.rsplit('.', 1)[0])
             temp_user_id = key.key.rsplit('/', 1)[0]
-            file_ext = key.key.rsplit('/', 1)[1]
 
             if int(temp_user_id) == user_id and url not in url_list:
                 url_list.append(url)
@@ -262,7 +206,6 @@ def upload_video():
         filename = file.filename
         file.save('/tmp/' + filename)
 
-        bucket = s3.Bucket(head_bucket)
         exists = True
 
         try:
@@ -304,3 +247,7 @@ def upload_video():
 
 def get_bucket_url(bucket, object_name):
     return 'https://s3.amazonaws.com/' + bucket + '/' + object_name
+
+
+if __name__ == '__main__':
+    app.run()
