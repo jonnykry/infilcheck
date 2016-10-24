@@ -1,6 +1,8 @@
 from picamera.array import PiRGBArray
 from picamera import PiCamera
 
+
+
 import sys
 import requests
 import imutils
@@ -9,13 +11,12 @@ import time
 import cv2
 import thread
 import os
+sys.path.insert(0, '../../gpio/')
+from light_sensor import *
+from led import *
 
 
-
-
-PI_ID = '7cce1833-3e9a-4e92-816d-262d7a1e67c0'
-
-
+PI_ID = 'e51b6577-85ca-4360-bcef-0c83452e24f2'
 
 # Tracks the list of files to upload
 TO_UPLOAD = []
@@ -32,39 +33,50 @@ CURRENT_CAPTURE = None
 # List of strings to print when exiting normally
 LOG = []
 
+## LED1 While recording
+## LED2 While occupied
+## LED3 While upload
+## LED4 Wait for cam
+## LED5 LOW Light
 
 def upload_thread():
     
-    while True:
+    while True:    
         while not TO_UPLOAD:
             pass
+        blink_led3()
         filepath = TO_UPLOAD.pop(0)
         print("UPLOAD STARTING:  " + filepath)
         LOG.append("UPLOAD_STARTING:  " + filepath)
-        
+      
         r = requests.post('https://agile-lake-39375.herokuapp.com/upload', data={'piid': PI_ID}, files={filepath.split('\\')[-1]: open(filepath, 'rb')})        
 
         if r.ok:
+            blink_led3_stop()
             os.remove(filepath)
             print("UPLOAD DONE :  " + filepath)
             LOG.append("UPLOAD DONE :  " + filepath)
+           
 
         else:
+            blink_led3_stop()
             print 'POST failed'
             print 'INTERPRETED FILENAME:  ' + filepath.split('\\')[-1]
             print 'FILEPATH:  ' + filepath
-
+         
             
 def add_status_and_timestamps(frame, text, timestamp):
     ts = timestamp.strftime("%A %d %B %Y %I:%M:%S%p")
+    print light_sense()
     cv2.putText(frame, "Room: {}".format(text), (10, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
     cv2.putText(frame, ts, (10, frame.shape[0] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.35, (0, 0, 255), 1)
-
+    ##TODO add in light value
     
 def wait_for_cam(max):
     ## TODO:  smart polling so we don't have to wait the whole time
+    led4_on()
     time.sleep(max)
-
+    led4_off()
 
 def init_video_writer(fourcc):
     global IS_CAPTURING
@@ -98,6 +110,7 @@ def main():
     global OUT
     global CURRENT_CAPTURE
 
+
     # The video codec for cv2's VideoWriter
     FOURCC = cv2.VideoWriter_fourcc(*'MJPG')
     
@@ -125,7 +138,7 @@ def main():
     text = ""
     
     for f in cam.capture_continuous(rawCapture, format="bgr", use_video_port=True):
- 
+        led1_on() 
         frame = f.array
         timestamp = datetime.datetime.now()
         occupied = False
@@ -164,10 +177,12 @@ def main():
         add_status_and_timestamps(frame, text, timestamp)
         
         if occupied:
+            led2_on()  
             motionCounter += 1
 
             # wait for X frames of motion to be sure
             if motionCounter > 5 and OUT is None :
+               
                 print "STARTING CAPTURE"
                 IS_CAPTURING = True
                 init_video_writer(FOURCC)
@@ -175,14 +190,18 @@ def main():
 
             if IS_CAPTURING and OUT is not None and recordedFrames < 300:
                 recordedFrames += 1
-                print "WRITING FRAME " + str(recordedFrames)            
+                print "WRITING FRAME " + str(recordedFrames) 
+                         
                 OUT.write(frame)
 
             elif IS_CAPTURING and OUT and recordedFrames >= 300:
                 recordedFrames = 0
                 stop_recording()
+                led2_off()
+                
                        
         else:
+            led2_off()
             motionCounter = 0
 
             if IS_CAPTURING:
@@ -202,7 +221,8 @@ def main():
             break
 
         rawCapture.truncate(0)
-        
+
+    
     return
 
 

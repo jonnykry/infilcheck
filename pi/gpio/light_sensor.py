@@ -2,13 +2,16 @@
 
 import RPi.GPIO as GPIO
 import time
+from led import *
+
 
 GPIO.setmode(GPIO.BOARD)
 
 #define the pin that goes to the circuit
 pin_to_circuit = 7
 
-def rc_time (pin_to_circuit):
+def light_sense():
+    
     count = 0
   
     #Output on the pin for 
@@ -23,14 +26,15 @@ def rc_time (pin_to_circuit):
     while (GPIO.input(pin_to_circuit) == GPIO.LOW):
         count += 1
 
-    return count
+    if (count > 3000):
+        led5_on()
+        return count
+    else:
+        led5_off()
+        return count
 
-#Catch when script is interrupted, cleanup correctly
-try:
-    # Main loop
-    while True:
-        print rc_time(pin_to_circuit)
-except KeyboardInterrupt:
-    pass
-finally:
+
+
+
+def cleanup():
     GPIO.cleanup()
