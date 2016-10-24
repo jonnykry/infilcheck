@@ -12,6 +12,7 @@ class User(db.Model):
     phone = db.Column(db.String(12), unique=True)
     passhash = db.Column(db.String(120), unique=True)
     pi_id = db.Column(db.String(120), unique=True)
+    created_at = db.Column(db.DateTime)
 
     def __init__(self, email, password, phone):
         self.email = email
