@@ -1,7 +1,7 @@
 import os
 from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
 import boto3
+from models import db
 
 app = Flask(__name__, template_folder='templates')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -19,4 +19,4 @@ app.config.update(dict(
     PASSWORD='admin',
 ))
 
-db = SQLAlchemy(app)
+db.init_app(app)

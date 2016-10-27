@@ -7,7 +7,7 @@ from flask import request, render_template, redirect
 import flask_login
 import botocore
 from __init__ import db, app, s3, head_bucket
-from models.user import User
+from models import User, Video
 
 login_manager = flask_login.LoginManager()
 login_manager.init_app(app)
