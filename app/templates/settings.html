@@ -1,5 +1,9 @@
 {% extends "layout.html" %}
 {% block body %}
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+</head>
 <div class="container">
   <h1>Settings</h1>
   Email: {{user_data.email}}
@@ -7,5 +11,36 @@
     Phone Number: {{ user_data.phone }}
     <br>
     Unique PI ID: {{ user_data.pi_id }}
+    <br>
+
+    <input type="Button" id="Change Settings" value="Change Settings" onclick="showForm()" >
+
+    <form class="form-change" action="settings" method="POST" id="change">
+        <h2 class="form-signin-heading">Change Settings</h2>
+        <label for="inputEmail" class="sr-only">Email address</label>
+        <input name="email" type="email" id="inputEmail" class="form-control" placeholder="Email address" value={{user_data.email}} required="" autofocus="">
+
+        <label for="inputphone" class="sr-only">Phone Number</label>
+        <input name="phone" type="phone" id="inputphone" class="form-control" placeholder="Phone Number" value={{user_data.phone}} required="" autofocus="">
+
+        <label for="inputPassword" class="sr-only">Current Password</label>
+        <input name="curpassword" type="password" id="curpassword" class="form-control" placeholder="Current Password" >
+
+        <label for="inputPassword" class="sr-only">New Password</label>
+        <input name="password" type="password" id="inputPassword" class="form-control" placeholder="Password" >
+
+
+        <label><input name='piid' type="checkbox" id="piid" class="form-control" value="true">Generate New Pi ID</label>
+        <input type="hidden" name="piid" value="false" />
+
+        <button class="btn btn-lg btn-primary btn-block" type="submit">Save</button>
+    </form>
+
+
+
 </div>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"> </script>
+<script type="text/javascript" src="{{ url_for('static', filename='settings.js') }}"></script>
+
+
 {% endblock %}
