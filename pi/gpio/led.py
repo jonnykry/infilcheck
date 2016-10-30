@@ -29,7 +29,7 @@ LED4 = 12
 LED5 = 16
 
 ## Thread variables for blink continous func
-   
+
 global p_led1
 global p_led2
 global p_led3
@@ -49,29 +49,29 @@ GPIO.setup(LED5, GPIO.OUT) ## Setup GPIO Pin 16 to OUT
 
 ## Turn LED 1-5 on
 def led1_on():
-	GPIO.output(LED1,True) ## Turn on GPIO pin 11 
+	GPIO.output(LED1,True) ## Turn on GPIO pin 11
 
 def led2_on():
-	GPIO.output(LED2,True) ## Turn on GPIO pin 13 
+	GPIO.output(LED2,True) ## Turn on GPIO pin 13
 
 def led3_on():
-	GPIO.output(LED3,True) ## Turn on GPIO pin 15 
+	GPIO.output(LED3,True) ## Turn on GPIO pin 15
 
 def led4_on():
-	GPIO.output(LED4,True) ## Turn on GPIO pin 12 
+	GPIO.output(LED4,True) ## Turn on GPIO pin 12
 
 def led5_on():
-	GPIO.output(LED5,True) ## Turn on GPIO pin 16 
+	GPIO.output(LED5,True) ## Turn on GPIO pin 16
 
 ## Turn LED 1-5 off
 def led1_off():
-        GPIO.output(LED1,False) ## Turn off GPIO pin 11 
+        GPIO.output(LED1,False) ## Turn off GPIO pin 11
 
 def led2_off():
-	GPIO.output(LED2,False) ## Turn off GPIO pin 13 
+	GPIO.output(LED2,False) ## Turn off GPIO pin 13
 
 def led3_off():
-        GPIO.output(LED3,False) ## Turn off GPIO pin 15 
+        GPIO.output(LED3,False) ## Turn off GPIO pin 15
 
 def led4_off():
 	GPIO.output(LED4,False) ## Turn off GPIO pin 12
@@ -181,4 +181,3 @@ def blink_led5_stop():
 ## Cleanup
 def cleanup_gpio():
 	GPIO.cleanup()
-
