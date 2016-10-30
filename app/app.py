@@ -7,8 +7,11 @@ from flask import request, render_template, redirect
 import flask_login
 import botocore
 from __init__ import db, app, s3, head_bucket
-from models import User, Video, Flags
+from models import User, Video, Flags, Pi
+import uuid
+from werkzeug.security import generate_password_hash
 from datetime import datetime
+
 
 login_manager = flask_login.LoginManager()
 login_manager.init_app(app)
@@ -153,7 +156,37 @@ def protected():
 @app.route('/settings', methods=['GET', 'POST'])
 @flask_login.login_required
 def settings():
-    return render_template('settings.html', user_data=flask_login.current_user)
+
+    if request.method == 'POST':
+
+        email = request.form['email']
+        curpassword = request.form['curpassword']
+        password = request.form['password']
+        phone = flask.request.form['phone']
+        pi_id = flask.request.form['piid']
+
+
+        current_user = User.query.filter_by(id=flask_login.current_user.id).first()
+
+        if pi_id == 'true':
+           current_user.pi_id = str(uuid.uuid4())
+
+        if current_user.check_password(curpassword):
+            current_user.passhash = generate_password_hash(password)
+
+
+        current_user.email = email
+
+        current_user.phone = phone
+
+        db.session.commit()
+
+        return redirect('settings')
+
+
+
+
+    return render_template('settings.html', user_data = flask_login.current_user)
 
 
 @app.route('/dashboard')
