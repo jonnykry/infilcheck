@@ -47,19 +47,24 @@ class User(db.Model):
 class Video(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-    s3_url = db.Column(db.String(120))
+    s3_video_url = db.Column(db.String(120))
+    s3_gif_url = db.Column(db.String(120))
     created_at = db.Column(db.DateTime)
 
-    def __init__(self, user_id, s3_url, created_at):
+    def __init__(self, user_id, s3_video_url, s3_gif_url, created_at):
         self.user_id = user_id
-        self.s3_url = s3_url
+        self.s3_video_url = s3_video_url
+        self.s3_gif_url = s3_gif_url
         self.created_at = created_at
 
     def get_user_id(self):
         return self.user_id
 
-    def get_s3_url(self):
-        return self.s3_url
+    def get_s3_video_url(self):
+        return self.s3_video_url
+
+    def get_s3_gif_url(self):
+        return self.s3_gif_url
 
     def get_created_at(self):
         return self.created_at

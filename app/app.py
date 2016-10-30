@@ -10,6 +10,8 @@ from __init__ import db, app, s3, head_bucket
 from models import User, Video
 import uuid
 from werkzeug.security import generate_password_hash
+from datetime import datetime
+
 
 login_manager = flask_login.LoginManager()
 login_manager.init_app(app)
@@ -150,6 +152,7 @@ def protected():
 @app.route('/settings', methods=['GET', 'POST'])
 @flask_login.login_required
 def settings():
+
     if request.method == 'POST':
         email = request.form['email']
         curpassword = request.form['curpassword']
@@ -187,31 +190,13 @@ def dashboard():
     user = flask_login.current_user
     user_id = user.id
 
-    bucket = s3.Bucket(head_bucket)
-    exists = True
-
-    try:
-        s3.meta.client.head_bucket(Bucket=head_bucket)
-    except botocore.exceptions.ClientError as e:
-        # If a client error is thrown, then check that it was a 404 error.
-        # If it was a 404 error, then the bucket does not exist.
-        error_code = int(e.response['Error']['Code'])
-        if error_code == 404:
-            exists = False
-
-    url_list = []
-
-    if exists:
-        for key in bucket.objects.all():
-            url = get_bucket_url(bucket.name, key.key.rsplit('.', 1)[0])
-            temp_user_id = key.key.rsplit('/', 1)[0]
-
-            if int(temp_user_id) == user_id and url not in url_list:
-                url_list.append(url)
+    video_list = []
+    for video in db.session.query(Video).filter(Video.user_id == user_id):
+        video_list.append(video)
 
     username = user.email.rsplit('@', 1)[0]
 
-    return render_template('dashboard.html', username=username, urls=url_list)
+    return render_template('dashboard.html', username=username, videos=video_list)
 
 
 @app.route('/upload', methods=['POST'])
@@ -246,6 +231,7 @@ def upload_video():
             if error_code == 404:
                 exists = False
 
+
         if not exists:
             s3.create_bucket(head_bucket)
 
@@ -260,16 +246,27 @@ def upload_video():
         in_filepath = '/tmp/' + filename
         out_filepath = '/tmp/' + new_filename
 
+        user_bucket = str(user_to_update.id) + '/'
+
         ff = ffmpy.FFmpeg(inputs={in_filepath: None}, outputs={out_filepath: None})
         ff.run()
 
-        obj = s3.Object(head_bucket, str(user_to_update.id) + '/' + new_filename)
+        obj = s3.Object(head_bucket, user_bucket + new_filename)
         obj.put(Body=open(out_filepath, 'rb'))
         obj.Acl().put(ACL='public-read')
 
-        obj2 = s3.Object(head_bucket, str(user_to_update.id) + '/' + filename)
+        gif_url = get_bucket_url(head_bucket, user_bucket + new_filename)
+
+        obj2 = s3.Object(head_bucket, user_bucket + filename)
         obj2.put(Body=open(in_filepath, 'rb'))
         obj2.Acl().put(ACL='public-read')
+
+        vid_url = get_bucket_url(head_bucket, user_bucket + filename)
+
+        # Update the Database for the video
+        video = Video(user_to_update.id, vid_url, gif_url, datetime.utcnow())
+        db.session.add(video)
+        db.session.commit()
 
     return redirect('dashboard')
 
