@@ -29,6 +29,18 @@ $ python app/manage.py db migrate
 $ python app/manage.py db upgrade
 ```
 
+Example `.bash_vars` Environment Variables:
+
+```
+export DATABASE_URL="postgres:///YOUR_DATABASE"
+export FLASK_APP="YOUR_PATH_TO/app/app.py"
+export FLASK_USERNAME="YOUR_USERNAME"
+export FLASK_PASSWORD="YOUR_PASSWORD"
+export FLASK_SECRET_KEY="YOUR_KEY"
+export FLASK_DEBUG=1
+export S3_HEAD_BUCKET="YOUR_AMAZON_S3_HEAD_BUCKET"
+```
+
 
 Windows Guide:
 
