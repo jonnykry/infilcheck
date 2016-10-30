@@ -29,7 +29,6 @@ LED4 = 12
 LED5 = 16
 
 ## Thread variables for blink continous func
-
 global p_led1
 global p_led2
 global p_led3
