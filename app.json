@@ -2,7 +2,7 @@
   "name": "InfilCheck",
   "description": "Raspberry Pi security system",
   "repository": "https://github.com/jonnykry/infilcheck",
-  "logo": "https://node-js-sample.herokuapp.com/node.png",
+  "logo": "http://emojipedia-us.s3.amazonaws.com/cache/e2/a8/e2a8e9fff61d8561a0169fca6b22809d.png",
   "keywords": ["flask",
     "raspberrypi",
     "security",
