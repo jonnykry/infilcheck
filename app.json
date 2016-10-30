@@ -3,5 +3,40 @@
   "description": "Raspberry Pi security system",
   "repository": "https://github.com/jonnykry/infilcheck",
   "logo": "https://node-js-sample.herokuapp.com/node.png",
-  "keywords": ["flask", "raspberrypi", "security"]
+  "keywords": ["flask",
+    "raspberrypi",
+    "security",
+    "web",
+    "python",
+    "SMS"],
+
+  "env": {
+    "TWILIO_ACCOUNT_SID": {
+        "description": "Your Twilio account's unique identifier, found here: https://www.twilio.com/user/account",
+        "value": "ACxxxxxxxxxxxxxx"
+    },
+    "TWILIO_AUTH_TOKEN": {
+        "description": "Your Twilio account's secret key, found here: https://www.twilio.com/user/account",
+        "value": "yyyyyyyyyyyyyyyyyy"
+    },
+    "TWILIO_CALLER_ID": {
+        "description": "A Twilio number assigned to your account in E.164 format, found here: https://www.twilio.com/user/account/phone-numbers/incoming",
+        "value": "+15556667777"
+    },
+    "AWS_ACCESS_KEY_ID": {
+      "description": "An Amazon webservice key found in your AWS dashboard",
+      "value": "xxxxxxxxxxxxxxxxxxxx"
+    },
+    "AWS_SECRET_ACCESS_KEY": {
+      "description":"An Amazon webservice key found in your AWS dashboars",
+      "value": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+    },
+    "DATABASE_URL": {
+      "description": "Your postgres db url.",
+      "value":"postgres://"
+    }
+
+  },
+  "success_url": "/"
+
 }
