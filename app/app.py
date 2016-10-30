@@ -7,7 +7,7 @@ from flask import request, render_template, redirect
 import flask_login
 import botocore
 from __init__ import db, app, s3, head_bucket
-from models import User, Video
+from models import User, Video, Pi
 import uuid
 from werkzeug.security import generate_password_hash
 from datetime import datetime
@@ -154,6 +154,7 @@ def protected():
 def settings():
 
     if request.method == 'POST':
+
         email = request.form['email']
         curpassword = request.form['curpassword']
         password = request.form['password']

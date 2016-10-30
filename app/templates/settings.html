@@ -6,7 +6,8 @@
 </head>
 <div class="container">
   <h1>Settings</h1>
-  Email: {{user_data.email}}
+    <h2>User Settings</h2>
+    Email: {{user_data.email}}
     <br>
     Phone Number: {{ user_data.phone }}
     <br>
@@ -35,7 +36,14 @@
 
         <button class="btn btn-lg btn-primary btn-block" type="submit">Save</button>
     </form>
-
+    <h2>Pi Settings</h2>
+    Room name: {pi_data.room_name}}
+    <br>
+    Capture Framerate: { pi_data.capture_framerate }}
+    <br>
+    Output Framerate: { pi_data.output_framerate }}
+    <br>
+    Threshold Frame Count: { pi_data.threshold_frame_count }}
 
 
 </div>
