@@ -1,0 +1,7 @@
+{
+  "name": "InfilCheck",
+  "description": "Raspberry Pi security system",
+  "repository": "https://github.com/jonnykry/infilcheck",
+  "logo": "https://node-js-sample.herokuapp.com/node.png",
+  "keywords": ["flask", "raspberrypi", "security"]
+}
