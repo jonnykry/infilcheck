@@ -2,9 +2,10 @@
 {% block body %}
 <div class="container">
   <h1>{{ username }}'s Dashboard</h1>
-  {% for url in urls %}
-    <img src={{ url + '.gif' }} width="320" height="280"></img>
-    <div>Download: <a href={{ url + '.avi' }}>{{ url + '.avi' }}</a></div>
+  {% for video in videos %}
+    <img src={{ video.s3_gif_url }} width="320" height="280"></img>
+    <div><a href={{ video.s3_video_url }}>Download the Video</a></div>
+    <div>Date Created: {{ video.created_at }}</div>
   {% endfor %}
 </div>
 {% endblock %}
