@@ -1,8 +1,7 @@
 from picamera.array import PiRGBArray
 from picamera import PiCamera
 
-
-
+import json
 import sys
 import requests
 import imutils
@@ -16,7 +15,7 @@ from light_sensor import *
 from led import *
 
 
-PI_ID = 'e51b6577-85ca-4360-bcef-0c83452e24f2'
+PI_ID = ""
 
 # Tracks the list of files to upload
 TO_UPLOAD = []
@@ -30,8 +29,10 @@ OUT = None
 # The path of the file currently being captured
 CURRENT_CAPTURE = None
 
-# List of strings to print when exiting normally
-LOG = []
+# Whether or not to attempt to upload files
+LOCAL = False
+
+SETTINGS = {};
 
 ## LED1 While recording
 ## LED2 While occupied
@@ -39,41 +40,64 @@ LOG = []
 ## LED4 Wait for cam
 ## LED5 LOW Light
 
-def upload_thread():
-    
+def log(msg):
+    with open("log.txt", "a") as myfile:
+        info = str(datetime.datetime.now())[:-7] + " :: " + msg
+        print info
+        myfile.write(info +'\n')
+
+def polling_thread():
+    last_poll = datetime.datetime.now()
+    while True:
+        while (datetime.datetime.now() - last_poll).seconds < 3:
+            pass
+        r = requests.get('https://agile-lake-39375.herokuapp.com/poll', data={'piid': PI_ID})
+
+        if r.ok:
+            data = json.loads(r.text())
+            
+        
+        
+def upload_thread():    
     while True:    
         while not TO_UPLOAD:
             pass
         blink_led3()
         filepath = TO_UPLOAD.pop(0)
-        print("UPLOAD STARTING:  " + filepath)
-        LOG.append("UPLOAD_STARTING:  " + filepath)
-      
-        r = requests.post('https://agile-lake-39375.herokuapp.com/upload', data={'piid': PI_ID}, files={filepath.split('\\')[-1]: open(filepath, 'rb')})        
+        if not LOCAL:
+            log("UPLOAD_STARTING:  " + filepath)
+            try :
+                r = requests.post('https://agile-lake-39375.herokuapp.com/upload',
+                                  data={'piid': PI_ID}, files={filepath.split('\\')[-1]: open(filepath, 'rb')})        
 
-        if r.ok:
-            blink_led3_stop()
-            os.remove(filepath)
-            print("UPLOAD DONE :  " + filepath)
-            LOG.append("UPLOAD DONE :  " + filepath)
-           
+                if r.ok:
+                    os.remove(filepath)
+                    log("UPLOAD DONE :  " + filepath)           
+                    blink_led3_stop()
+                    led4_off()
+                    
+                else:
+                    log('POST failed')
+                    log('INTERPRETED FILENAME:  ' + filepath.split('\\')[-1])
+                    log('FILEPATH:  ' + filepath)
+                    blink_led3_stop()
+                    led4_off()
 
+            except:
+                led4_on()
+                blink_led3_stop()
         else:
+            log("Not uploading " + filepath)
+            time.sleep(3.0)
             blink_led3_stop()
-            print 'POST failed'
-            print 'INTERPRETED FILENAME:  ' + filepath.split('\\')[-1]
-            print 'FILEPATH:  ' + filepath
-         
-            
+
 def add_status_and_timestamps(frame, text, timestamp):
     ts = timestamp.strftime("%A %d %B %Y %I:%M:%S%p")
-    print light_sense()
     cv2.putText(frame, "Room: {}".format(text), (10, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
     cv2.putText(frame, ts, (10, frame.shape[0] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.35, (0, 0, 255), 1)
-    ##TODO add in light value
+    cv2.putText(frame, "Light:  {}".format(light_sense()), (10, frame.shape[0] - 30), cv2.FONT_HERSHEY_SIMPLEX, 0.35, (0, 0, 255), 1)
     
 def wait_for_cam(max):
-    ## TODO:  smart polling so we don't have to wait the whole time
     led4_on()
     time.sleep(max)
     led4_off()
@@ -83,7 +107,13 @@ def init_video_writer(fourcc):
     global OUT
     global CURRENT_CAPTURE
     
-    path = "./" # TODO:  SET DYNAMICALLY
+    path = './avi/'
+    
+    if not os.path.exists(path):
+        os.makedirs(path)
+
+
+    log('STARTING CAPTURE')
     filename = str(datetime.datetime.now()).replace(" ", "_").replace(":","_")[:-7] + ".avi"
     OUT = cv2.VideoWriter(path + filename, fourcc, 10.0, (500, 375))
     CURRENT_CAPTURE = path + filename
@@ -95,7 +125,7 @@ def stop_recording():
     global OUT
     global CURRENT_CAPTURE
     
-    print "DONE CAPTURING"
+    log("DONE CAPTURING")
     IS_CAPTURING = False
     TO_UPLOAD.append(CURRENT_CAPTURE)
     CURRENT_CAPTURE = None
@@ -104,13 +134,61 @@ def stop_recording():
     recordedFrames = 0
 
 
+def read_settings_file():
+    global SETTINGS
+
+    try:
+        with open('settings.json', 'r') as fp:
+            SETTINGS = json.load(fp)
+    except:
+        return None
+
+    needs_saving = False
+
+    if not SETTINGS['room_name']:
+        SETTINGS['room_name'] = "Room"
+        needs_saving = True
+
+    if not SETTINGS['capture_fr']:
+        SETTINGS['capture_fr'] = 32
+        needs_saving = True
+
+    if not SETTINGS['threshold_frame_count']:
+        SETTINGS['threshold_frame_count'] = 5
+        needs_saving = True
+
+    if not SETTINGS['output_fr']:
+        SETTINGS['output_fr'] = 10,
+        needs_saving = True
+        
+    if (not SETTINGS['pi_id']) and (not sys.environ['PI_ID']):
+        print "Pi ID must either be set as 'pi_id' in settings.json or as PI_ID env var"
+        return None
+
+    return SETTINGS
+    
 def main():
     global TO_UPLOAD
-    global IS_CAPTURING
+
     global OUT
     global CURRENT_CAPTURE
+    global LOCAL
+    
+    global PI_ID
+    
+    if not read_settings_file():
+        print("Error loading settings file")
+        return 1
 
 
+    if SETTINGS['pi_id']:
+        PI_ID = SETTINGS['pi_id']
+    else:
+        PI_ID = os.environ['PI_ID']
+        
+    WINDOWED = '-w' in sys.argv
+    LOCAL = '--local' in sys.argv
+        
     # The video codec for cv2's VideoWriter
     FOURCC = cv2.VideoWriter_fourcc(*'MJPG')
     
@@ -124,7 +202,7 @@ def main():
     rawCapture = PiRGBArray(cam, size=CAPTURE_RESOLUTION)
 
     # wait for camera to warm up
-    wait_for_cam(0.1)
+    wait_for_cam(2.0)
 
     avg = None
     lastUploaded = datetime.datetime.now()
@@ -136,7 +214,8 @@ def main():
 
     occupied = False
     text = ""
-    
+
+    log("UP AND RUNNING")
     for f in cam.capture_continuous(rawCapture, format="bgr", use_video_port=True):
         led1_on() 
         frame = f.array
@@ -181,24 +260,18 @@ def main():
             motionCounter += 1
 
             # wait for X frames of motion to be sure
-            if motionCounter > 5 and OUT is None :
-               
-                print "STARTING CAPTURE"
-                IS_CAPTURING = True
+            if motionCounter > 5 and OUT is None :               
                 init_video_writer(FOURCC)
 
 
             if IS_CAPTURING and OUT is not None and recordedFrames < 300:
-                recordedFrames += 1
-                print "WRITING FRAME " + str(recordedFrames) 
-                         
+                recordedFrames += 1                         
                 OUT.write(frame)
 
             elif IS_CAPTURING and OUT and recordedFrames >= 300:
                 recordedFrames = 0
                 stop_recording()
                 led2_off()
-                
                        
         else:
             led2_off()
@@ -208,24 +281,24 @@ def main():
                 recordedFrames = 0
                 stop_recording()
 
-        cv2.imshow("Feed", frame)
-        key = cv2.waitKey(1) & 0xFF
-        if key == ord("q"):
-            print "To upload:  " + str(TO_UPLOAD)
-            print ""
-            print ""
-            print "LOG:"
-            for l in LOG:
-                print l
-            
-            break
+            if WINDOWED:
+                cv2.imshow("Feed", frame)
+                key = cv2.waitKey(1) & 0xFF
+                if key == ord("q"):
+                    break
 
         rawCapture.truncate(0)
 
-    
     return
 
 
 
 if __name__ == '__main__':
-    main()
+
+    try:
+        main()
+    except KeyboardInterrupt:
+        pass
+    finally:
+        GPIO.cleanup()
+
