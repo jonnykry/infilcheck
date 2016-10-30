@@ -1,31 +1,42 @@
-
 {
-    "name": "Twilio Hackpack for Python",
-    "description": "The fastest way to start using Twilio with Python.  Based on Flask microwebframework.",
-    "keywords": [
-        "twilio",
-        "flask",
-        "python",
-        "web",
-        "SMS",
-        "voice"
-    ],
-    "website": "http://www.twilio.com",
-    "repository": "https://github.com/RobSpectre/Twilio-Hackpack-for-Heroku-and-Flask",
-    "logo": "https://www.twilio.com/packages/company/img/logos_downloadable_round.png",
-    "env": {
-        "TWILIO_ACCOUNT_SID": {
-            "description": "Your Twilio account's unique identifier, found here: https://www.twilio.com/user/account",
-            "value": "ACxxxxxxxxxxxxxx"
-        },
-        "TWILIO_AUTH_TOKEN": {
-            "description": "Your Twilio account's secret key, found here: https://www.twilio.com/user/account",
-            "value": "yyyyyyyyyyyyyyyyyy"
-        },
-        "TWILIO_CALLER_ID": {
-            "description": "A Twilio number assigned to your account in E.164 format, found here: https://www.twilio.com/user/account/phone-numbers/incoming",
-            "value": "+15556667777"
-        }
+  "name": "InfilCheck",
+  "description": "Raspberry Pi security system",
+  "repository": "https://github.com/jonnykry/infilcheck",
+  "logo": "https://node-js-sample.herokuapp.com/node.png",
+  "keywords": ["flask",
+    "raspberrypi",
+    "security",
+    "web",
+    "python",
+    "SMS"],
+
+  "env": {
+    "TWILIO_ACCOUNT_SID": {
+        "description": "Your Twilio account's unique identifier, found here: https://www.twilio.com/user/account",
+        "value": "ACxxxxxxxxxxxxxx"
     },
-    "success_url": "/"
+    "TWILIO_AUTH_TOKEN": {
+        "description": "Your Twilio account's secret key, found here: https://www.twilio.com/user/account",
+        "value": "yyyyyyyyyyyyyyyyyy"
+    },
+    "TWILIO_CALLER_ID": {
+        "description": "A Twilio number assigned to your account in E.164 format, found here: https://www.twilio.com/user/account/phone-numbers/incoming",
+        "value": "+15556667777"
+    },
+    "AWS_ACCESS_KEY_ID": {
+      "description": "An Amazon webservice key found in your AWS dashboard",
+      "value": "xxxxxxxxxxxxxxxxxxxx"
+    },
+    "AWS_SECRET_ACCESS_KEY": {
+      "description":"An Amazon webservice key found in your AWS dashboars",
+      "value": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+    },
+    "DATABASE_URL": {
+      "description": "Your postgres db url.",
+      "value":"postgres://"
+    }
+
+  },
+  "success_url": "/"
+
 }
