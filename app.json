@@ -1,16 +1,19 @@
-{
-  "name": "InfilCheck",
-  "description": "Raspberry Pi security system",
-  "repository": "https://github.com/jonnykry/infilcheck",
-  "logo": "https://node-js-sample.herokuapp.com/node.png",
-  "keywords": ["flask",
-    "raspberrypi",
-    "security",
-    "web",
-    "python",
-    "SMS"],
 
- "env": {
+{
+    "name": "Twilio Hackpack for Python",
+    "description": "The fastest way to start using Twilio with Python.  Based on Flask microwebframework.",
+    "keywords": [
+        "twilio",
+        "flask",
+        "python",
+        "web",
+        "SMS",
+        "voice"
+    ],
+    "website": "http://www.twilio.com",
+    "repository": "https://github.com/RobSpectre/Twilio-Hackpack-for-Heroku-and-Flask",
+    "logo": "https://www.twilio.com/packages/company/img/logos_downloadable_round.png",
+    "env": {
         "TWILIO_ACCOUNT_SID": {
             "description": "Your Twilio account's unique identifier, found here: https://www.twilio.com/user/account",
             "value": "ACxxxxxxxxxxxxxx"
@@ -23,8 +26,6 @@
             "description": "A Twilio number assigned to your account in E.164 format, found here: https://www.twilio.com/user/account/phone-numbers/incoming",
             "value": "+15556667777"
         }
-
-  },
-  "success_url": "/"
-
+    },
+    "success_url": "/"
 }
