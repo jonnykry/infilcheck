@@ -5,6 +5,7 @@ import uuid
 
 db = SQLAlchemy()
 
+
 class User(db.Model):
     __tablename__ = 'users'
 
@@ -68,3 +69,26 @@ class Video(db.Model):
 
     def get_created_at(self):
         return self.created_at
+
+
+class Flags(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    request_picture = db.Column(db.Boolean)
+    request_log = db.Column(db.Boolean)
+    request_update_settings = db.Column(db.Boolean)
+
+    def __init__(self, user_id, request_picture, request_log, request_update_settings):
+        self.user_id = user_id
+        self.request_picture = request_picture
+        self.request_log = request_log
+        self.request_update_settings = request_update_settings
+
+    def get_request_picture(self):
+        return self.request_picture
+
+    def get_request_log(self):
+        return self.request_log
+
+    def get_request_update_settings(self):
+        return self.request_update_settings

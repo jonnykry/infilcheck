@@ -7,7 +7,7 @@ from flask import request, render_template, redirect
 import flask_login
 import botocore
 from __init__ import db, app, s3, head_bucket
-from models import User, Video
+from models import User, Video, Flags
 from datetime import datetime
 
 login_manager = flask_login.LoginManager()
@@ -129,6 +129,10 @@ def register():
         if email is not None and password is not None and phone is not None:
             user = User(email, password, phone)
             db.session.add(user)
+
+            flags = Flags(user.id, False, False, False)
+            db.session.add(flags)
+
             db.session.commit()
 
             flask_login.login_user(user)
