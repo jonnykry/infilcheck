@@ -3,11 +3,10 @@ from werkzeug.security import generate_password_hash, \
      check_password_hash
 import uuid
 
-
 db = SQLAlchemy()
 
 class User(db.Model):
-    __tablename__ = 'user'
+    __tablename__ = 'users'
 
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(120), unique=True)
@@ -47,7 +46,7 @@ class User(db.Model):
 
 class Video(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     s3_url = db.Column(db.String(120))
     created_at = db.Column(db.DateTime)
 
