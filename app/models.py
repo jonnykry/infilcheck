@@ -70,7 +70,6 @@ class Video(db.Model):
     def get_created_at(self):
         return self.created_at
 
-
 class Flags(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
@@ -92,3 +91,27 @@ class Flags(db.Model):
 
     def get_request_update_settings(self):
         return self.request_update_settings
+
+
+class Pi(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    room_name = db.Column(db.String(120))
+    capture_framerate = db.Column(db.Integer)
+    output_framerate = db.Column(db.Integer)
+    threshold_frame_count = db.Column(db.Integer)
+    created_at = db.Column(db.DateTime)
+
+    def __init__(self, user_id, created_at):
+        self.user_id = user_id
+        self.room_name = "Room"
+        self.capture_framerate = 32
+        self.threshold_frame_count = 5
+        self.output_framerate = 10
+        self.created_at = created_at
+
+    def get_user_id(self):
+        return self.user_id
+
+    def get_room_name(self):
+        return self.room_name
