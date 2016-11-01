@@ -6,7 +6,7 @@ import ffmpy
 from flask import request, render_template, redirect
 import flask_login
 import botocore
-from __init__ import db, app, s3, head_bucket twilio_account twilio_auth twilio_caller
+from __init__ import db, app, s3, head_bucket, twilio_account, twilio_auth, twilio_caller
 from models import User, Video, Flags, Pi
 import uuid
 from werkzeug.security import generate_password_hash
@@ -317,13 +317,13 @@ def poll():
 def get_bucket_url(bucket, object_name):
     return 'https://s3.amazonaws.com/' + bucket + '/' + object_name
 
+
 def sms_alert(gif_url):
     # Get User Phone Number
     # Create Twilio Message
-    message = client.sms.messages.create(to="+18159780753", from_= twilio_caller,
+    message = client.sms.messages.create(to="+18159780753", from_=twilio_caller,
                                             body="Intruder!",
                                             media_url=[gif_url])
-
 
 
 if __name__ == '__main__':
