@@ -24,6 +24,10 @@
         "description": "A Twilio number assigned to your account in E.164 format, found here: https://www.twilio.com/user/account/phone-numbers/incoming",
         "value": "+15556667777"
     },
+    "TWILIO_ALERTS": {
+        "description": "A Twilio configuration whether or not to send sms (0 - no sms, 1 - sms)",
+        "value": "0"
+    },
     "AWS_ACCESS_KEY_ID": {
       "description": "An Amazon webservice key found in your AWS dashboard",
       "value": "xxxxxxxxxxxxxxxxxxxx"

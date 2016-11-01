@@ -6,7 +6,7 @@ import ffmpy
 from flask import request, render_template, redirect
 import flask_login
 import botocore
-from __init__ import db, app, s3, head_bucket twilio_account twilio_auth twilio_caller
+from __init__ import db, app, s3, head_bucket, twilio_account, twilio_auth, twilio_caller twilio_alerts
 from models import User, Video, Flags, Pi
 import uuid
 from werkzeug.security import generate_password_hash
@@ -134,10 +134,13 @@ def register():
         if email is not None and password is not None and phone is not None:
             user = User(email, password, phone)
             db.session.add(user)
+            db.session.commit()
 
             flags = Flags(user.id, False, False, False)
-            db.session.add(flags)
+            pi = Pi(user.id, datetime.utcnow())
 
+            db.session.add(flags)
+            db.session.add(pi)
             db.session.commit()
 
             flask_login.login_user(user)
@@ -158,15 +161,12 @@ def protected():
 @app.route('/settings', methods=['GET', 'POST'])
 @flask_login.login_required
 def settings():
-
     if request.method == 'POST':
-
         email = request.form['email']
         curpassword = request.form['curpassword']
         password = request.form['password']
         phone = flask.request.form['phone']
         pi_id = flask.request.form['piid']
-
 
         current_user = User.query.filter_by(id=flask_login.current_user.id).first()
 
@@ -176,7 +176,6 @@ def settings():
         if current_user.check_password(curpassword):
             current_user.passhash = generate_password_hash(password)
 
-
         current_user.email = email
 
         current_user.phone = phone
@@ -184,9 +183,6 @@ def settings():
         db.session.commit()
 
         return redirect('settings')
-
-
-
 
     return render_template('settings.html', user_data = flask_login.current_user)
 
@@ -211,11 +207,8 @@ def upload_video():
     if request.method == 'POST':
 
         pi_id = request.form['piid']
-        user_to_update = None
 
-        for user in db.session.query(User).filter(User.pi_id == pi_id):
-            user_to_update = user
-            break
+        user_to_update = db.session.query(User).filter(User.pi_id == pi_id).first()
 
         if user_to_update is None:
             return render_template('server_error.html')
@@ -238,7 +231,6 @@ def upload_video():
             error_code = int(e.response['Error']['Code'])
             if error_code == 404:
                 exists = False
-
 
         if not exists:
             s3.create_bucket(head_bucket)
@@ -265,8 +257,9 @@ def upload_video():
 
         gif_url = get_bucket_url(head_bucket, user_bucket + new_filename)
 
-        #SMS ALERT
-        sms_alert(gif_url)
+        #SMS ALERT if Config is set to 1 otherwise do not text
+        if(twilio_alerts):
+            sms_alert(gif_url)
 
         obj2 = s3.Object(head_bucket, user_bucket + filename)
         obj2.put(Body=open(in_filepath, 'rb'))
@@ -284,16 +277,54 @@ def upload_video():
     return redirect('dashboard')
 
 
+@app.route('/poll', methods=['POST'])
+def poll():
+    if request.method == 'POST':
+        pi_id = request.form['piid']
+
+        user = db.session.query(User).filter(User.pi_id == pi_id).first()
+
+        if user is None:
+            return flask.abort(404)
+
+        flags = db.session.query(Flags).filter(Flags.user_id == user.id).first()
+        pi_obj = db.session.query(Pi).filter(Pi.user_id == user.id).first()
+
+        if flags is None or pi_obj is None:
+            return flask.abort(404)
+
+        update_settings = flags.request_update_settings
+
+        settings_data = {}
+        if update_settings is not False:
+            settings_data = {
+                'room_name': pi_obj.room_name,
+                'capture_framerate': pi_obj.capture_framerate,
+                'threshold_frame_count': pi_obj.threshold_frame_count,
+                'output_framerate': pi_obj.output_framerate,
+                'is_enabled': pi_obj.is_enabled
+            }
+
+        response = {
+            'requests_picture': flags.request_picture,
+            'requests_log': flags.request_log,
+            'update_settings': flags.request_update_settings,
+            'settings_data': settings_data
+        }
+
+        return flask.jsonify(response)
+
+
 def get_bucket_url(bucket, object_name):
     return 'https://s3.amazonaws.com/' + bucket + '/' + object_name
+
 
 def sms_alert(gif_url):
     # Get User Phone Number
     # Create Twilio Message
-    message = client.sms.messages.create(to="+18159780753", from_= twilio_caller,
+    message = client.sms.messages.create(to="+18159780753", from_=twilio_caller,
                                             body="Intruder!",
                                             media_url=[gif_url])
-
 
 
 if __name__ == '__main__':

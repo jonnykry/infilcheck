@@ -32,6 +32,9 @@ CURRENT_CAPTURE = None
 # Whether or not to attempt to upload files
 LOCAL = False
 
+# Whether or not the app is in verbose mode
+VERBOSE = False
+
 SETTINGS = {};
 
 ## LED1 While recording
@@ -40,7 +43,10 @@ SETTINGS = {};
 ## LED4 Wait for cam
 ## LED5 LOW Light
 
-def log(msg):
+def log(msg, verbose_only=False):
+    if (verbose_only and not VERBOSE):
+        return
+    
     with open("log.txt", "a") as myfile:
         info = str(datetime.datetime.now())[:-7] + " :: " + msg
         print info
@@ -51,11 +57,18 @@ def polling_thread():
     while True:
         while (datetime.datetime.now() - last_poll).seconds < 3:
             pass
-        r = requests.get('https://agile-lake-39375.herokuapp.com/poll', data={'piid': PI_ID})
+        last_poll = datetime.datetime.now()
+        
+        log("polling...", True)
 
+
+        r = requests.get('https://agile-lake-39375.herokuapp.com/poll', data={'piid': PI_ID})
+    
         if r.ok:
-            data = json.loads(r.text())
-            
+            log("polling response OK", True)
+#           data = json.loads(r.text())
+        else:
+            log("polling response BAD", True)
         
         
 def upload_thread():    
@@ -73,18 +86,16 @@ def upload_thread():
                 if r.ok:
                     os.remove(filepath)
                     log("UPLOAD DONE :  " + filepath)           
-                    blink_led3_stop()
                     led4_off()
                     
                 else:
                     log('POST failed')
                     log('INTERPRETED FILENAME:  ' + filepath.split('\\')[-1])
                     log('FILEPATH:  ' + filepath)
-                    blink_led3_stop()
                     led4_off()
-
             except:
                 led4_on()
+            finally:
                 blink_led3_stop()
         else:
             log("Not uploading " + filepath)
@@ -188,7 +199,8 @@ def main():
         
     WINDOWED = '-w' in sys.argv
     LOCAL = '--local' in sys.argv
-        
+    VERBOSE = '-v' in sys.argv
+    
     # The video codec for cv2's VideoWriter
     FOURCC = cv2.VideoWriter_fourcc(*'MJPG')
     
@@ -212,6 +224,9 @@ def main():
 
     thread.start_new_thread(upload_thread, ())
 
+    if not LOCAL:
+        thread.start_new_thread(polling_thread, ())
+    
     occupied = False
     text = ""
 

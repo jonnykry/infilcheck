@@ -10,6 +10,7 @@ app.secret_key = os.environ['FLASK_SECRET_KEY']
 twilio_account = os.environ['TWILIO_ACCOUNT_SID']
 twilio_auth = os.environ['TWILIO_AUTH_TOKEN']
 twilio_caller = os.environ['TWILIO_CALLER_ID']
+twilio_alerts = os.environ['TWILIO_ALERTS']
 
 head_bucket = os.environ['S3_HEAD_BUCKET']
 
