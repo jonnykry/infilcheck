@@ -32,9 +32,29 @@
       "description":"An Amazon webservice key found in your AWS dashboars",
       "value": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
     },
+    "S3_HEAD_BUCKET": {
+      "description": "The bucket you created in S3 for all of your video files",
+      "value": "name-of-bucket"
+    },
     "DATABASE_URL": {
       "description": "Your postgres db url.",
       "value":"postgres://"
+    },
+    "FLASK_DEBUG":{
+      "description": "Log level (0, no erros outputed to log not recommended)",
+      "value": "0 or 1"
+    },
+    "FLASK_PASSWORD":{
+      "description":"The password for the flask server default is typically admin",
+      "value": "admin"
+    },
+    "FLASK_SECRET_KEY":{
+      "description":"Key required for auth library, enter anything super secret",
+      "value": "super secret"
+    },
+    "FLASK_USERNAME":{
+      "description":"The username for your administrator account typically admin",
+      "value": "admin"
     }
 
   },
