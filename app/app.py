@@ -6,7 +6,7 @@ import ffmpy
 from flask import request, render_template, redirect
 import flask_login
 import botocore
-from __init__ import db, app, s3, head_bucket, twilio_account, twilio_auth, twilio_caller
+from __init__ import db, app, s3, head_bucket, twilio_account, twilio_auth, twilio_caller twilio_alerts
 from models import User, Video, Flags, Pi
 import uuid
 from werkzeug.security import generate_password_hash
@@ -257,8 +257,9 @@ def upload_video():
 
         gif_url = get_bucket_url(head_bucket, user_bucket + new_filename)
 
-        #SMS ALERT
-        sms_alert(gif_url)
+        #SMS ALERT if Config is set to 1 otherwise do not text
+        if(twilio_alerts):
+            sms_alert(gif_url)
 
         obj2 = s3.Object(head_bucket, user_bucket + filename)
         obj2.put(Body=open(in_filepath, 'rb'))
