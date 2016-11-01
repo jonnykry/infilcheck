@@ -6,15 +6,17 @@ import ffmpy
 from flask import request, render_template, redirect
 import flask_login
 import botocore
-from __init__ import db, app, s3, head_bucket
+from __init__ import db, app, s3, head_bucket twilio_account twilio_auth twilio_caller
 from models import User, Video, Flags, Pi
 import uuid
 from werkzeug.security import generate_password_hash
 from datetime import datetime
-
+from twilio.rest import TwilioRestClient
 
 login_manager = flask_login.LoginManager()
 login_manager.init_app(app)
+
+client = TwilioRestClient(twilio_account, twilio_auth)
 
 
 @app.route('/')
@@ -203,6 +205,7 @@ def dashboard():
 @app.route('/upload', methods=['POST'])
 def upload_video():
     if request.method == 'POST':
+
         pi_id = request.form['piid']
 
         user_to_update = db.session.query(User).filter(User.pi_id == pi_id).first()
@@ -254,6 +257,9 @@ def upload_video():
 
         gif_url = get_bucket_url(head_bucket, user_bucket + new_filename)
 
+        #SMS ALERT
+        sms_alert(gif_url)
+
         obj2 = s3.Object(head_bucket, user_bucket + filename)
         obj2.put(Body=open(in_filepath, 'rb'))
         obj2.Acl().put(ACL='public-read')
@@ -264,6 +270,8 @@ def upload_video():
         video = Video(user_to_update.id, vid_url, gif_url, datetime.utcnow())
         db.session.add(video)
         db.session.commit()
+
+
 
     return redirect('dashboard')
 
@@ -308,6 +316,14 @@ def poll():
 
 def get_bucket_url(bucket, object_name):
     return 'https://s3.amazonaws.com/' + bucket + '/' + object_name
+
+def sms_alert(gif_url):
+    # Get User Phone Number
+    # Create Twilio Message
+    message = client.sms.messages.create(to="+18159780753", from_= twilio_caller,
+                                            body="Intruder!",
+                                            media_url=[gif_url])
+
 
 
 if __name__ == '__main__':
