@@ -100,6 +100,7 @@ class Pi(db.Model):
     capture_framerate = db.Column(db.Integer)
     output_framerate = db.Column(db.Integer)
     threshold_frame_count = db.Column(db.Integer)
+    is_enabled = db.Column(db.Boolean)
     created_at = db.Column(db.DateTime)
 
     def __init__(self, user_id, created_at):
@@ -108,6 +109,7 @@ class Pi(db.Model):
         self.capture_framerate = 32
         self.threshold_frame_count = 5
         self.output_framerate = 10
+        self.is_enabled = True
         self.created_at = created_at
 
     def get_user_id(self):

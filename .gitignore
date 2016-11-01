@@ -98,3 +98,4 @@ app/static/uploads
 
 # Ignore OS environment keys
 .bash_vars
+boto.config
