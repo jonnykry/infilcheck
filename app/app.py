@@ -191,6 +191,10 @@ def settings():
         pi_data.output_framerate =output_framerate
         pi_data.threshold_frame_count = threshold_frame_count
 
+        flag=Flags.query.filter_by(id=flask_login.current_user.id).first()
+        flag.request_update_settings = True
+
+
         db.session.commit()
 
         return redirect('settings')
@@ -308,7 +312,7 @@ def poll():
         update_settings = flags.request_update_settings
 
         settings_data = {}
-        if update_settings is not False:
+        if update_settings:
             settings_data = {
                 'room_name': pi_obj.room_name,
                 'capture_framerate': pi_obj.capture_framerate,
@@ -316,6 +320,9 @@ def poll():
                 'output_framerate': pi_obj.output_framerate,
                 'is_enabled': pi_obj.is_enabled
             }
+            flag=Flags.query.filter_by(id=flask_login.current_user.id).first()
+            flag.request_update_settings = False
+            db.session.commit()
 
         response = {
             'requests_picture': flags.request_picture,
