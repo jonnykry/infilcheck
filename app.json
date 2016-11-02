@@ -62,6 +62,12 @@
     }
 
   },
+  "scripts": {
+  "postdeploy": "python from app import db db.create_all()"
+}
+
   "success_url": "/"
+
+
 
 }
