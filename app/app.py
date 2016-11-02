@@ -184,7 +184,9 @@ def settings():
 
         return redirect('settings')
 
-    return render_template('settings.html', user_data = flask_login.current_user)
+
+    return render_template('settings.html', user_data = flask_login.current_user, pi_data = Pi.query.filter_by(id=flask_login.current_user.id).first())
+
 
 
 @app.route('/dashboard')
@@ -200,6 +202,20 @@ def dashboard():
     username = user.email.rsplit('@', 1)[0]
 
     return render_template('dashboard.html', username=username, videos=video_list)
+
+
+@app.route('/snapshot', methods=['POST'])
+@flask_login.login_required
+def snapshot():
+    user = flask_login.current_user
+    user_id = user.id
+
+    if request.method == 'POST':
+        flag = db.session.query(Flags).filter(Flags.user_id == user_id).first()
+        flag.request_picture = True
+        db.session.commit()
+
+    return redirect('dashboard')
 
 
 @app.route('/upload', methods=['POST'])
