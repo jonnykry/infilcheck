@@ -2,6 +2,9 @@
 {% block body %}
 <div class="container">
   <h1>{{ username }}'s Dashboard</h1>
+  <form class="form-snap-photo" action="dashboard" method="GET" id="snap-photo">
+    <button class="btn btn-md btn-primary btn-block" type="submit">Request Pi Video</button>
+  </form>
   {% for video in videos %}
     <img src={{ video.s3_gif_url }} width="320" height="280"></img>
     <div><a href={{ video.s3_video_url }}>Download the Video</a></div>

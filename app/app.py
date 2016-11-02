@@ -186,7 +186,7 @@ def settings():
         current_user.phone = phone
 
         pi_data = Pi.query.filter_by(id=flask_login.current_user.id).first()
-        pi_data.room_name =room_name
+        pi_data.room_name = room_name
         pi_data.capture_framerate = capture_framerate
         pi_data.output_framerate =output_framerate
         pi_data.threshold_frame_count = threshold_frame_count
@@ -203,11 +203,16 @@ def settings():
     return render_template('settings.html', user_data = flask_login.current_user, pi_data = Pi.query.filter_by(id=flask_login.current_user.id).first())
 
 
-@app.route('/dashboard')
+@app.route('/dashboard', methods=['GET'])
 @flask_login.login_required
 def dashboard():
     user = flask_login.current_user
     user_id = user.id
+
+    if request.method == 'GET':
+        flag = db.session.query(Flags).filter(Flags.user_id == user_id).first()
+        flag.request_picture = True
+        db.session.commit()
 
     video_list = []
     for video in db.session.query(Video).filter(Video.user_id == user_id):
@@ -320,7 +325,7 @@ def poll():
                 'output_framerate': pi_obj.output_framerate,
                 'is_enabled': pi_obj.is_enabled
             }
-            flag=Flags.query.filter_by(id = user.id).first()
+            flag = Flags.query.filter_by(id = user.id).first()
             flag.request_update_settings = False
             db.session.commit()
 
