@@ -72,8 +72,5 @@
 
   "success_url": "/",
 
-  "scripts": {
-      "postdeploy": "python app/initdb.py"
-}
 
 }
