@@ -46,7 +46,7 @@ SETTINGS = {};
 def log(msg, verbose_only=False):
     if (verbose_only and not VERBOSE):
         return
-    
+
     with open("log.txt", "a") as myfile:
         info = str(datetime.datetime.now())[:-7] + " :: " + msg
         print info
@@ -58,21 +58,21 @@ def polling_thread():
         while (datetime.datetime.now() - last_poll).seconds < 3:
             pass
         last_poll = datetime.datetime.now()
-        
+
         log("polling...", True)
 
 
         r = requests.get('https://agile-lake-39375.herokuapp.com/poll', data={'piid': PI_ID})
-    
+
         if r.ok:
             log("polling response OK", True)
-#           data = json.loads(r.text())
+        #           data = json.loads(r.text())
         else:
             log("polling response BAD", True)
-        
-        
-def upload_thread():    
-    while True:    
+
+
+def upload_thread():
+    while True:
         while not TO_UPLOAD:
             pass
         blink_led3()
@@ -81,13 +81,13 @@ def upload_thread():
             log("UPLOAD_STARTING:  " + filepath)
             try :
                 r = requests.post('https://agile-lake-39375.herokuapp.com/upload',
-                                  data={'piid': PI_ID}, files={filepath.split('\\')[-1]: open(filepath, 'rb')})        
+                                  data={'piid': PI_ID}, files={filepath.split('\\')[-1]: open(filepath, 'rb')})
 
                 if r.ok:
                     os.remove(filepath)
-                    log("UPLOAD DONE :  " + filepath)           
+                    log("UPLOAD DONE :  " + filepath)
                     led4_off()
-                    
+
                 else:
                     log('POST failed')
                     log('INTERPRETED FILENAME:  ' + filepath.split('\\')[-1])
@@ -107,7 +107,7 @@ def add_status_and_timestamps(frame, text, timestamp):
     cv2.putText(frame, "Room: {}".format(text), (10, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
     cv2.putText(frame, ts, (10, frame.shape[0] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.35, (0, 0, 255), 1)
     cv2.putText(frame, "Light:  {}".format(light_sense()), (10, frame.shape[0] - 30), cv2.FONT_HERSHEY_SIMPLEX, 0.35, (0, 0, 255), 1)
-    
+
 def wait_for_cam(max):
     led4_on()
     time.sleep(max)
@@ -117,9 +117,9 @@ def init_video_writer(fourcc):
     global IS_CAPTURING
     global OUT
     global CURRENT_CAPTURE
-    
+
     path = './avi/'
-    
+
     if not os.path.exists(path):
         os.makedirs(path)
 
@@ -130,12 +130,12 @@ def init_video_writer(fourcc):
     CURRENT_CAPTURE = path + filename
     IS_CAPTURING = True
 
-    
+
 def stop_recording():
     global IS_CAPTURING
     global OUT
     global CURRENT_CAPTURE
-    
+
     log("DONE CAPTURING")
     IS_CAPTURING = False
     TO_UPLOAD.append(CURRENT_CAPTURE)
@@ -171,22 +171,22 @@ def read_settings_file():
     if not SETTINGS['output_fr']:
         SETTINGS['output_fr'] = 10,
         needs_saving = True
-        
+
     if (not SETTINGS['pi_id']) and (not sys.environ['PI_ID']):
         print "Pi ID must either be set as 'pi_id' in settings.json or as PI_ID env var"
         return None
 
     return SETTINGS
-    
+
 def main():
     global TO_UPLOAD
 
     global OUT
     global CURRENT_CAPTURE
     global LOCAL
-    
+
     global PI_ID
-    
+
     if not read_settings_file():
         print("Error loading settings file")
         return 1
@@ -196,14 +196,14 @@ def main():
         PI_ID = SETTINGS['pi_id']
     else:
         PI_ID = os.environ['PI_ID']
-        
+
     WINDOWED = '-w' in sys.argv
     LOCAL = '--local' in sys.argv
     VERBOSE = '-v' in sys.argv
-    
+
     # The video codec for cv2's VideoWriter
     FOURCC = cv2.VideoWriter_fourcc(*'MJPG')
-    
+
     # TODO:  move to conf file
     CAPTURE_RESOLUTION = (640, 480)
 
@@ -226,13 +226,13 @@ def main():
 
     if not LOCAL:
         thread.start_new_thread(polling_thread, ())
-    
+
     occupied = False
     text = ""
 
     log("UP AND RUNNING")
     for f in cam.capture_continuous(rawCapture, format="bgr", use_video_port=True):
-        led1_on() 
+        led1_on()
         frame = f.array
         timestamp = datetime.datetime.now()
         occupied = False
@@ -265,29 +265,29 @@ def main():
             if cv2.contourArea(c) >= 500:
                 occupied = True
                 break
-            
+
         text = "Occupied" if occupied else "Unoccupied"
 
         add_status_and_timestamps(frame, text, timestamp)
-        
+
         if occupied:
-            led2_on()  
+            led2_on()
             motionCounter += 1
 
             # wait for X frames of motion to be sure
-            if motionCounter > 5 and OUT is None :               
+            if motionCounter > 5 and OUT is None :
                 init_video_writer(FOURCC)
 
 
             if IS_CAPTURING and OUT is not None and recordedFrames < 300:
-                recordedFrames += 1                         
+                recordedFrames += 1
                 OUT.write(frame)
 
             elif IS_CAPTURING and OUT and recordedFrames >= 300:
                 recordedFrames = 0
                 stop_recording()
                 led2_off()
-                       
+
         else:
             led2_off()
             motionCounter = 0
@@ -316,4 +316,3 @@ if __name__ == '__main__':
         pass
     finally:
         GPIO.cleanup()
-

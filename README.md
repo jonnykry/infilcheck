@@ -62,3 +62,13 @@ $ python app/manage.py db init
 $ python app/manage.py db migrate
 $ python app/manage.py db upgrade
 ```
+
+```
+set DATABASE_URL=postgresql://postgres:@localhost/infilcheck_dev
+set FLASK_APP=YOUR_PATH_TO/app/app.py
+set FLASK_USERNAME=YOUR_USERNAME
+set FLASK_PASSWORD=YOUR_PASSWORD
+set FLASK_SECRET_KEY="YOUR_KEY"
+set FLASK_DEBUG=1
+set S3_HEAD_BUCKET=YOUR_AMAZON_S3_HEAD_BUCKET
+```
