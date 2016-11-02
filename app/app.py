@@ -308,7 +308,7 @@ def poll():
         if user is None:
             return flask.abort(404)
 
-        flag = db.session.query(Flag).filter(flag.user_id == user.id).first()
+        flag = db.session.query(Flags).filter(flag.user_id == user.id).first()
         pi_obj = db.session.query(Pi).filter(Pi.user_id == user.id).first()
 
         if flag is None or pi_obj is None:
