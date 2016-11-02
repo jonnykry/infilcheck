@@ -308,16 +308,18 @@ def poll():
         if user is None:
             return flask.abort(404)
 
-        flags = db.session.query(Flags).filter(Flags.user_id == user.id).first()
+        flag = db.session.query(flag).filter(flag.user_id == user.id).first()
         pi_obj = db.session.query(Pi).filter(Pi.user_id == user.id).first()
 
-        if flags is None or pi_obj is None:
+        if flag is None or pi_obj is None:
             return flask.abort(404)
 
-        update_settings = flags.request_update_settings
+        request_update_settings = flag.request_update_settings
+        request_picture = flag.request_picture
+        request_log = flag.request_log
 
         settings_data = {}
-        if update_settings:
+        if request_update_settings:
             settings_data = {
                 'room_name': pi_obj.room_name,
                 'capture_framerate': pi_obj.capture_framerate,
@@ -325,16 +327,22 @@ def poll():
                 'output_framerate': pi_obj.output_framerate,
                 'is_enabled': pi_obj.is_enabled
             }
-            flag = Flags.query.filter_by(id = user.id).first()
             flag.request_update_settings = False
-            db.session.commit()
+
+        if request_picture:
+            flag.request_picture = False
+
+        if request_log:
+            flag.request_log = False
 
         response = {
-            'requests_picture': flags.request_picture,
-            'requests_log': flags.request_log,
-            'update_settings': flags.request_update_settings,
+            'requests_picture': request_picture,
+            'requests_log': request_log,
+            'update_settings': request_update_settings,
             'settings_data': settings_data
         }
+
+        db.session.commit()
 
         return flask.jsonify(response)
 
