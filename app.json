@@ -14,7 +14,7 @@
 "addons": [
     {
       "plan": "heroku-postgresql",
-      "as": "DATBASE"
+      "as": "DATABASE"
     }
   ],
 
@@ -70,7 +70,11 @@
 
   },
 
-  "success_url": "/"
+  "success_url": "/",
+
+  "scripts": {
+      "postdeploy": "app/initdb.py)"
+}
 
 
 }
