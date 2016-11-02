@@ -62,6 +62,11 @@
     }
 
   },
-  "success_url": "/"
+
+  "success_url": "/",
+
+  "scripts": {
+      "postdeploy": "initdb.py)"
+}
 
 }
