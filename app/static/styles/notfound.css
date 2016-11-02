@@ -1,0 +1,12 @@
+body {
+  font-family: 'Ubuntu Mono', monospace !important;
+}
+
+.forms {
+  display: flex;
+}
+
+.forms form, .btn {
+  width: 100%;
+  margin: 0 1rem;
+}

@@ -36,7 +36,6 @@
         <label for="inputPassword" class="sr-only">New Password</label>
         <input name="password" type="password" id="inputPassword" class="form-control" placeholder="Password" >
 
-
         <label><input name='piid' type="checkbox" id="piid" class="form-control" value="true">Generate New Pi ID</label>
         <input type="hidden" name="piid" value="false" />
 
@@ -60,11 +59,8 @@
         <br>
     </form>
     <br><br><br>
-
-
 </div>
 
-<script src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"> </script>
 <script type="text/javascript" src="{{ url_for('static', filename='settings.js') }}"></script>
 
 {% endblock %}

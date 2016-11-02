@@ -1,5 +1,9 @@
 /* TODO */
 
+body {
+  font-family: 'Ubuntu Mono', monospace !important;
+}
+
 .col-xs-4 {
   padding-top: 3rem;
 }

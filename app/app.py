@@ -76,13 +76,13 @@ def request_loader(request):
 
     loaded_user = None
 
-    # TODO:  Why the loop here if we only want one???
-    for user in db.session.query(User).filter(User.email == email):
-        if user is None:
-            return
+    user = db.session.query(User).filter(User.email == email).first()
 
-        user.is_authenticated = user.check_password(password)
-        loaded_user = user
+    if user is None:
+        return
+
+    user.is_authenticated = user.check_password(password)
+    loaded_user = user
 
     return loaded_user
 
@@ -221,7 +221,6 @@ def snapshot():
 @app.route('/upload', methods=['POST'])
 def upload_video():
     if request.method == 'POST':
-
         pi_id = request.form['piid']
 
         user_to_update = db.session.query(User).filter(User.pi_id == pi_id).first()
@@ -288,8 +287,6 @@ def upload_video():
         db.session.add(video)
         db.session.commit()
 
-
-
     return redirect('dashboard')
 
 
@@ -303,16 +300,18 @@ def poll():
         if user is None:
             return flask.abort(404)
 
-        flags = db.session.query(Flags).filter(Flags.user_id == user.id).first()
+        flag = db.session.query(Flags).filter(Flags.user_id == user.id).first()
         pi_obj = db.session.query(Pi).filter(Pi.user_id == user.id).first()
 
-        if flags is None or pi_obj is None:
+        if flag is None or pi_obj is None:
             return flask.abort(404)
 
-        update_settings = flags.request_update_settings
+        request_update_settings = flag.request_update_settings
+        request_picture = flag.request_picture
+        request_log = flag.request_log
 
         settings_data = {}
-        if update_settings is not False:
+        if request_update_settings:
             settings_data = {
                 'room_name': pi_obj.room_name,
                 'capture_framerate': pi_obj.capture_framerate,
@@ -320,13 +319,22 @@ def poll():
                 'output_framerate': pi_obj.output_framerate,
                 'is_enabled': pi_obj.is_enabled
             }
+            flag.request_update_settings = False
+
+        if request_picture:
+            flag.request_picture = False
+
+        if request_log:
+            flag.request_log = False
 
         response = {
-            'requests_picture': flags.request_picture,
-            'requests_log': flags.request_log,
-            'update_settings': flags.request_update_settings,
+            'requests_picture': request_picture,
+            'requests_log': request_log,
+            'update_settings': request_update_settings,
             'settings_data': settings_data
         }
+
+        db.session.commit()
 
         return flask.jsonify(response)
 
