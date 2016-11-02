@@ -62,12 +62,11 @@
     }
 
   },
+
+  "success_url": "/",
+
   "scripts": {
-  "postdeploy": "python from app import db db.create_all()"
+      "postdeploy": "initdb.py)"
 }
-
-  "success_url": "/"
-
-
 
 }
