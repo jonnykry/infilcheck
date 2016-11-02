@@ -320,7 +320,7 @@ def poll():
                 'output_framerate': pi_obj.output_framerate,
                 'is_enabled': pi_obj.is_enabled
             }
-            flag=Flags.query.filter_by(id=flask_login.current_user.id).first()
+            flag=Flags.query.filter_by(id = user.id).first()
             flag.request_update_settings = False
             db.session.commit()
 
