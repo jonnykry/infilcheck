@@ -275,7 +275,7 @@ def upload_video():
 
         #SMS ALERT if Config is set to 1 otherwise do not text
         if(twilio_alerts):
-            sms_alert(gif_url)
+            sms_alert(gif_url, user_to_update.id)
 
         obj2 = s3.Object(head_bucket, user_bucket + filename)
         obj2.put(Body=open(in_filepath, 'rb'))
@@ -335,9 +335,9 @@ def get_bucket_url(bucket, object_name):
     return 'https://s3.amazonaws.com/' + bucket + '/' + object_name
 
 
-def sms_alert(gif_url):
+def sms_alert(gif_url, user_id):
     # Get User Phone Number
-    current_user = User.query.filter_by(id=flask_login.current_user.id).first()
+    current_user = User.query.filter_by(id=user_id).first()
     # Create Twilio Message
     message = client.sms.messages.create(to=current_user.phone, from_=twilio_caller,
                                             body="Intruder! Visit\n" + request.host + " \nfor more information",
