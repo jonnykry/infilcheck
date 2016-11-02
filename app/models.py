@@ -71,7 +71,6 @@ class Video(db.Model):
     def get_created_at(self):
         return self.created_at
 
-
 class Flags(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))

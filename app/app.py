@@ -6,12 +6,13 @@ import ffmpy
 from flask import request, render_template, redirect
 import flask_login
 import botocore
-from __init__ import db, app, s3, head_bucket, twilio_account, twilio_auth, twilio_caller
+from __init__ import db, app, s3, head_bucket, twilio_account, twilio_auth, twilio_caller, twilio_alerts
 from models import User, Video, Flags, Pi
 import uuid
 from werkzeug.security import generate_password_hash
 from datetime import datetime
 from twilio.rest import TwilioRestClient
+
 
 login_manager = flask_login.LoginManager()
 login_manager.init_app(app)
@@ -168,23 +169,34 @@ def settings():
         phone = flask.request.form['phone']
         pi_id = flask.request.form['piid']
 
+        room_name = flask.request.form['room_name']
+        capture_framerate = flask.request.form['capture_framerate']
+        output_framerate = flask.request.form['output_framerate']
+        threshold_frame_count = flask.request.form['threshold_frame_count']
+
         current_user = User.query.filter_by(id=flask_login.current_user.id).first()
 
         if pi_id == 'true':
            current_user.pi_id = str(uuid.uuid4())
 
-        if current_user.check_password(curpassword):
+        if current_user.check_password(curpassword) and password is not '':
             current_user.passhash = generate_password_hash(password)
 
         current_user.email = email
-
         current_user.phone = phone
+
+        pi_data = Pi.query.filter_by(id=flask_login.current_user.id).first()
+        pi_data.room_name =room_name
+        pi_data.capture_framerate = capture_framerate
+        pi_data.output_framerate =output_framerate
+        pi_data.threshold_frame_count = threshold_frame_count
 
         db.session.commit()
 
         return redirect('settings')
 
-    return render_template('settings.html', user_data = flask_login.current_user)
+
+    return render_template('settings.html', user_data = flask_login.current_user, pi_data = Pi.query.filter_by(id=flask_login.current_user.id).first())
 
 
 @app.route('/dashboard')
@@ -257,8 +269,9 @@ def upload_video():
 
         gif_url = get_bucket_url(head_bucket, user_bucket + new_filename)
 
-        #SMS ALERT
-        sms_alert(gif_url)
+        #SMS ALERT if Config is set to 1 otherwise do not text
+        if(twilio_alerts):
+            sms_alert(gif_url)
 
         obj2 = s3.Object(head_bucket, user_bucket + filename)
         obj2.put(Body=open(in_filepath, 'rb'))
