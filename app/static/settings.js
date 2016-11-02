@@ -1,15 +1,15 @@
 var hide =0;
-$("#change").hide();
+document.getElementById("change").style.visibility = "hidden";
 function showForm()
 {
 if (hide ==0)
     {
-    $("#change").show();
+    document.getElementById("change").style.visibility = "visible";
     hide =1;
     }
 else
     {
-    $("#change").hide();
+    document.getElementById("change").style.visibility = "hidden";
     hide =0;
     }
 
