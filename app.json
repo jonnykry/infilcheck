@@ -11,7 +11,12 @@
     "python",
     "SMS"],
   
-  "addons": ["heroku-postgresql:hobby-dev", "DATABASE"],
+"addons": [
+    {
+      "plan": "heroku-postgresql",
+      "as": "DATBASE"
+    }
+  ],
 
   "env": {
     "TWILIO_ACCOUNT_SID": {
