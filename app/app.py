@@ -13,7 +13,6 @@ from werkzeug.security import generate_password_hash
 from datetime import datetime
 from twilio.rest import TwilioRestClient
 
-
 login_manager = flask_login.LoginManager()
 login_manager.init_app(app)
 
@@ -169,39 +168,28 @@ def settings():
         phone = flask.request.form['phone']
         pi_id = flask.request.form['piid']
 
-        room_name = flask.request.form['room_name']
-        capture_framerate = flask.request.form['capture_framerate']
-        output_framerate = flask.request.form['output_framerate']
-        threshold_frame_count = flask.request.form['threshold_frame_count']
-
         current_user = User.query.filter_by(id=flask_login.current_user.id).first()
 
         if pi_id == 'true':
            current_user.pi_id = str(uuid.uuid4())
 
-        if current_user.check_password(curpassword) and password is not '':
+        if current_user.check_password(curpassword):
             current_user.passhash = generate_password_hash(password)
 
         current_user.email = email
+
         current_user.phone = phone
-
-        pi_data = Pi.query.filter_by(id=flask_login.current_user.id).first()
-        pi_data.room_name = room_name
-        pi_data.capture_framerate = capture_framerate
-        pi_data.output_framerate =output_framerate
-        pi_data.threshold_frame_count = threshold_frame_count
-
-        flag=Flags.query.filter_by(id=flask_login.current_user.id).first()
-        flag.request_update_settings = True
 
         db.session.commit()
 
         return redirect('settings')
 
+
     return render_template('settings.html', user_data = flask_login.current_user, pi_data = Pi.query.filter_by(id=flask_login.current_user.id).first())
 
 
-@app.route('/dashboard', methods=['GET'])
+
+@app.route('/dashboard')
 @flask_login.login_required
 def dashboard():
     user = flask_login.current_user
@@ -286,7 +274,7 @@ def upload_video():
         gif_url = get_bucket_url(head_bucket, user_bucket + new_filename)
 
         #SMS ALERT if Config is set to 1 otherwise do not text
-        if(twilio_alerts == "1"):
+        if(twilio_alerts):
             sms_alert(gif_url)
 
         obj2 = s3.Object(head_bucket, user_bucket + filename)
@@ -315,18 +303,16 @@ def poll():
         if user is None:
             return flask.abort(404)
 
-        flag = db.session.query(Flags).filter(Flags.user_id == user.id).first()
+        flags = db.session.query(Flags).filter(Flags.user_id == user.id).first()
         pi_obj = db.session.query(Pi).filter(Pi.user_id == user.id).first()
 
-        if flag is None or pi_obj is None:
+        if flags is None or pi_obj is None:
             return flask.abort(404)
 
-        request_update_settings = flag.request_update_settings
-        request_picture = flag.request_picture
-        request_log = flag.request_log
+        update_settings = flags.request_update_settings
 
         settings_data = {}
-        if request_update_settings:
+        if update_settings is not False:
             settings_data = {
                 'room_name': pi_obj.room_name,
                 'capture_framerate': pi_obj.capture_framerate,
@@ -334,22 +320,13 @@ def poll():
                 'output_framerate': pi_obj.output_framerate,
                 'is_enabled': pi_obj.is_enabled
             }
-            flag.request_update_settings = False
-
-        if request_picture:
-            flag.request_picture = False
-
-        if request_log:
-            flag.request_log = False
 
         response = {
-            'requests_picture': request_picture,
-            'requests_log': request_log,
-            'update_settings': request_update_settings,
+            'requests_picture': flags.request_picture,
+            'requests_log': flags.request_log,
+            'update_settings': flags.request_update_settings,
             'settings_data': settings_data
         }
-
-        db.session.commit()
 
         return flask.jsonify(response)
 
@@ -360,10 +337,11 @@ def get_bucket_url(bucket, object_name):
 
 def sms_alert(gif_url):
     # Get User Phone Number
+    current_user = User.query.filter_by(id=flask_login.current_user.id).first()
     # Create Twilio Message
-    message = client.sms.messages.create(to="+18159780753", from_=twilio_caller,
-                                            body="Intruder!",
-                                            media_url=[gif_url])
+    message = client.sms.messages.create(to=current_user.phone, from_=twilio_caller,
+                                            body="Intruder! Visit\n" + request.host + " \nfor more information",
+                                            media_url=['https://demo.twilio.com/owl.png', 'https://demo.twilio.com/logo.png'])
 
 
 if __name__ == '__main__':
