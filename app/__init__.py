@@ -1,9 +1,7 @@
 import os
-from flask import Flask
 import boto3
-from models import db
+from models import app, db
 
-app = Flask(__name__, template_folder='templates')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.secret_key = os.environ['FLASK_SECRET_KEY']
 
@@ -22,5 +20,3 @@ app.config.update(dict(
     USERNAME=os.environ['FLASK_USERNAME'],
     PASSWORD=os.environ['FLASK_PASSWORD'],
 ))
-
-db.init_app(app)
