@@ -6,6 +6,7 @@ import ffmpy
 from flask import request, render_template, redirect
 import flask_login
 import botocore
+from sqlalchemy import desc
 from __init__ import db, app, s3, head_bucket, twilio_account, twilio_auth, twilio_caller, twilio_alerts
 from models import User, Video, Flags, Pi
 import uuid
@@ -208,7 +209,7 @@ def dashboard():
     user_id = user.id
 
     video_list = []
-    for video in db.session.query(Video).filter(Video.user_id == user_id):
+    for video in db.session.query(Video).order_by(desc(Video.created_at)).filter(Video.user_id == user_id):
         video_list.append(video)
 
     username = user.email.rsplit('@', 1)[0]
