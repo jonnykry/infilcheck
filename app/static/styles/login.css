@@ -39,3 +39,9 @@ body {
 .form-signin .form-control:focus {
   z-index: 2;
 }
+
+@media (max-width: 768px) {
+  .header h1 {
+    font-size: 6rem;
+  }
+}
