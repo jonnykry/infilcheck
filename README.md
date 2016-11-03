@@ -45,10 +45,9 @@ TODO @jonnykry
 
 
 
-## Heroku Deploy
-[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/jonnykry/infilcheck/)
+## Heroku Deploy [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/jonnykry/infilcheck/)
 
-Click the above link to deploy the repository to your Heroku account.
+Click the above "Deploy to Heroku" button to deploy the repository to your Heroku account.
 
 You will be taken to a "Create New App" page where you will follow these steps to complete the InfilCheck deploy.
 
@@ -92,7 +91,7 @@ You will be taken to a "Create New App" page where you will follow these steps t
 
   * Note* phone numbers must include country code to work with Twilio.
 
-## Raspberry Pi InfilCheck Installation guide.
+## Raspberry Pi
 TODO @samjxn
 
 
