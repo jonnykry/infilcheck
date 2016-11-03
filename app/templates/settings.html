@@ -18,7 +18,13 @@
     <br>
     Threshold Frame Count: {{ pi_data.threshold_frame_count }}
     <br>
-    <input type="Button" id="Change Settings" value="Change Settings" onclick="showForm()" >
+    <div id="en" value='{{pi_data.is_enabled}}'>Pi is Enabled: {{pi_data.is_enabled}}</div>
+    <br>
+    <form class="form-change" action="enable" method="POST" id="Pi">
+        <button class="btn btn-lg btn-default" id="Toggle Pi" value="Change Settings"  type="submit" >Toggle Pi</button>
+    </form>
+    <br><br>
+    <button class="btn btn-lg btn-default" id="Change Settings" value="Change Settings" onclick="showForm()" >Change Settings</button>
 
     <form class="form-change" action="settings" method="POST" id="change">
         <h2 class="form-signin-heading">Change Settings</h2>
@@ -35,8 +41,8 @@
         New Password:
         <label for="inputPassword" class="sr-only">New Password</label>
         <input name="password" type="password" id="inputPassword" class="form-control" placeholder="Password" >
-
-        <label><input name='piid' type="checkbox" id="piid" class="form-control" value="true">Generate New Pi ID</label>
+        Generate New Pi ID
+        <label class="checkbox-inline" ><input name='piid' type="checkbox" id="piid" class="form-control" value="true"></label>
         <input type="hidden" name="piid" value="false" />
 
         <h3 class="form-signin-heading">Pi Settings</h3>
@@ -52,10 +58,10 @@
         Threshold Frame Count:
         <label for="threshold_frame_count" class="sr-only">Threshold Frame Count</label>
         <input name="threshold_frame_count" type="threshold_frame_count" id="threshold_frame_count" class="form-control" value={{pi_data.threshold_frame_count}} >
-
-        <input type="Button" id="default" value="Default Pi Settings" onclick="fill_default()" >
-
-        <button class="btn btn-lg btn-primary btn-block" type="submit">Save</button>
+        <br>
+        <button class="btn btn-lg btn-default" id="default" value="Default Pi Settings" onclick="fill_default()" >Default Pi Settings</button>
+        <br>
+        <button class="btn btn-lg btn-default btn-block" type="submit">Save</button>
         <br>
     </form>
     <br><br><br>
