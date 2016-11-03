@@ -198,7 +198,26 @@ def settings():
 
     return render_template('settings.html', user_data = flask_login.current_user, pi_data = Pi.query.filter_by(id=flask_login.current_user.id).first())
 
+@app.route('/enable', methods=['GET', 'POST'])
+@flask_login.login_required
+def enable():
+    if request.method == 'POST':
+        current_user = Pi.query.filter_by(id=flask_login.current_user.id).first()
+        flag=Flags.query.filter_by(id=flask_login.current_user.id).first()
+        flag.request_update_settings = True
 
+        if current_user.is_enabled:
+            current_user.is_enabled = False
+        else:
+            current_user.is_enabled = True
+
+
+        db.session.commit()
+
+        return redirect('settings')
+
+
+    return render_template('settings.html', user_data = flask_login.current_user, pi_data = Pi.query.filter_by(id=flask_login.current_user.id).first())
 
 @app.route('/dashboard')
 @flask_login.login_required
