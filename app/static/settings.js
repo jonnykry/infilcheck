@@ -1,5 +1,17 @@
 var hide =0;
 document.getElementById("change").style.visibility = "hidden";
+
+if (document.getElementById("en").innerHTML == "Pi is Enabled: True")
+{
+document.getElementById("Toggle Pi").style.background = '#4CAF50';
+}
+else
+{
+document.getElementById("Toggle Pi").style.background = '#f44336';
+}
+
+
+
 function showForm()
 {
 if (hide ==0)
