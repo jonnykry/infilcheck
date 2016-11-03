@@ -27,9 +27,9 @@ You can expect to follow these steps creating your account.
 
 2. Get your first Twilio number by following the tutorial.
 
-  * Save this number for later and input it the "TWILIO_CALLER_ID" Config variable when deploying your Heroku application.
+  * Save this number for later and input it as "TWILIO_CALLER_ID" Config variable when deploying your Heroku application.
 
-3. Completing the rest of the tutorial is not necessary, you may if you wish.
+3. Completing the rest of the Twilio tutorial is not necessary, you may if you wish.
 
 4. Select the pound sign on the far right side (looks like this #).
 
@@ -44,6 +44,41 @@ You can expect to follow these steps creating your account.
 
 ## Heroku Deploy
 [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/jonnykry/infilcheck/)
+Click the above link to deploy the repository to your Heroku account.
+
+You will be taken to a "Create New App" page where you will follow these steps to complete the InfilCheck deploy.
+
+1. Enter in the first box the name of your App. This is totally optional but a cool name is completely necessary.
+
+2. Runtime Selection - choose for the appropriate region you wish to run your InfilCheck deploy in.
+
+3. Enter the following Config Variables
+
+  1. **TWILIO_ACCOUNT_SID** (ACCOUNT SID) may be found under Account Summary at [https://www.twilio.com/user/account](https://www.twilio.com/user/account)
+
+  2. **TWILIO_AUTH_TOKEN** (AUTH TOKEN) may be found below Account Summary. You will need to click on the eye icon to reveal the token.
+
+  3. **TWILIO_CALLER_ID** is the active number you wish Twilio to send text alerts from and may be found here. [https://www.twilio.com/user/account/phone-numbers/incoming](https://www.twilio.com/user/account/phone-numbers/incoming)
+
+  4. **TWILIO_ALERTS** Twilio is not a completely free service and if you do not wish to get text alerts to your phone enter 0, otherwise 1
+
+  5. **AWS_ACCESS_KEY_ID** The Amazon webservice key found in your AWS dashboard found here [TODO PROVIDE LINK]()
+
+  6. **AWS_SECRET_ACCESS_KEY** An Amazon webservice key found in your AWS dashboard found here [TODO PROVIDE LINK]()
+
+  7. **S3_HEAD_BUCKET** The name of the bucket you created in S3 for all of your video files.
+
+  8. **FLASK_DEBUG** Set to 0 for no logged errors or 1. This is more of a development configuration if you have no clue set it to 1
+
+  9. **FLASK_PASSWORD** tbr
+
+  10. **FLASK_SECRET_KEY** tbr
+
+  11. **FLASK_USERNAME**  tbr
+
+  Click on the deploy button and you are off the races!
+
+
 
 
 # Dev Set-up Instructions
