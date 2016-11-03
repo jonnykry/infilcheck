@@ -8,8 +8,10 @@ Infilcheck is a cheap and efficient home security product to notify you when you
 In addition, we've created a prototype for (TODO:  Greg) to physically track when the Raspberry Pi is recording, among other things.
 
 #Installation Guide
-To install Infilcheck you must sign up for a number of free services.
-## Web Services
+The Infilcheck Installation guide comes in two parts. First you must complete the web Installation and configure the appropriate services.
+Second you must install our software on a Raspberry Pi. The process is detailed for you below.
+## Web Installation
+To install Infilcheck you must sign up for a number of free services
 ### Heroku
 We will be using Heroku a cloud platform to host Infilcheck. The Heroku plan we will be using provides a postgres database and hosting for free.
 
@@ -38,12 +40,14 @@ You can expect to follow these steps creating your account.
   * Here you must add every phone number you wish to be able to be texted by your Heroku application. You should see the number you verified you humanity with already listed.
 
 ### Amazon Web Services
+TODO @jonnykry
 
 
 
 
 ## Heroku Deploy
 [![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/jonnykry/infilcheck/)
+
 Click the above link to deploy the repository to your Heroku account.
 
 You will be taken to a "Create New App" page where you will follow these steps to complete the InfilCheck deploy.
@@ -54,6 +58,8 @@ You will be taken to a "Create New App" page where you will follow these steps t
 
 3. Enter the following Config Variables
 
+### Twilio Configurations
+
   1. **TWILIO_ACCOUNT_SID** (ACCOUNT SID) may be found under Account Summary at [https://www.twilio.com/user/account](https://www.twilio.com/user/account)
 
   2. **TWILIO_AUTH_TOKEN** (AUTH TOKEN) may be found below Account Summary. You will need to click on the eye icon to reveal the token.
@@ -62,21 +68,33 @@ You will be taken to a "Create New App" page where you will follow these steps t
 
   4. **TWILIO_ALERTS** Twilio is not a completely free service and if you do not wish to get text alerts to your phone enter 0, otherwise 1
 
+### Amazon Web Services Configurations
+
   5. **AWS_ACCESS_KEY_ID** The Amazon webservice key found in your AWS dashboard found here [TODO PROVIDE LINK]()
 
   6. **AWS_SECRET_ACCESS_KEY** An Amazon webservice key found in your AWS dashboard found here [TODO PROVIDE LINK]()
 
   7. **S3_HEAD_BUCKET** The name of the bucket you created in S3 for all of your video files.
 
+### Flask Configurations
+
   8. **FLASK_DEBUG** Set to 0 for no logged errors or 1. This is more of a development configuration if you have no clue set it to 1
 
-  9. **FLASK_PASSWORD** tbr
+  9. **FLASK_PASSWORD** to be removed in a future dev cycle keep as is
 
-  10. **FLASK_SECRET_KEY** tbr
+  10. **FLASK_SECRET_KEY** to be removed in a future dev cycle keep as is
 
-  11. **FLASK_USERNAME**  tbr
+  11. **FLASK_USERNAME**  to be removed in a future dev cycle keep as is
 
-  Click on the deploy button and you are off the races!
+4. Click on the deploy button and you are off the races!
+
+  * Once Heroku completes installing your application you may begin creating user accounts and logins.
+
+  * Note* phone numbers must include country code to work with Twilio.
+
+## Raspberry Pi InfilCheck Installation guide.
+TODO @samjxn
+
 
 
 
