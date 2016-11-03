@@ -264,8 +264,14 @@ def main():
 
     log("UP AND RUNNING")
     for f in cam.capture_continuous(rawCapture, format="bgr", use_video_port=True):
-        led1_on()
 
+        if not SETTINGS['enabled']:
+            led1_off()
+            
+        else:
+            led1_on()
+        
+        
         frame = f.array
         timestamp = datetime.datetime.now()
         occupied = False
@@ -303,9 +309,9 @@ def main():
 
         add_status_and_timestamps(frame, text, timestamp)
         
-        if occupied or CAPTURE_REQUESTED:
+        if SETTINGS['enabled'] and (occupied or CAPTURE_REQUESTED):
 
-            if CAPTURE_REQUESTED:
+            if CAPTURE_REQUESTED and SETTINGS['enabled']:
                 log("recording due to request:  {}".format(recordedFrames))
 
             led2_on()  
@@ -315,7 +321,7 @@ def main():
             if (motionCounter > SETTINGS['threshold_frame_count'] or CAPTURE_REQUESTED) and OUT is None :               
                 init_video_writer(FOURCC)
 
-            if CAPTURE_REQUESTED and recordedFrames > 10:
+            if (CAPTURE_REQUESTED and recordedFrames > 10):
                 recordedFrames = 0
                 stop_recording()
                 led2_off()
