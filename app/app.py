@@ -273,7 +273,7 @@ def upload_video():
         gif_url = get_bucket_url(head_bucket, user_bucket + new_filename)
 
         #SMS ALERT if Config is set to 1 otherwise do not text
-        if(twilio_alerts):
+        if(twilio_alerts == "1"):
             sms_alert(gif_url, user_to_update.id)
 
         obj2 = s3.Object(head_bucket, user_bucket + filename)
