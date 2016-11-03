@@ -27,7 +27,7 @@ You can expect to follow these steps creating your account.
 
 2. Get your first Twilio number by following the tutorial.
 
-⋅⋅* Save this number for later and input it the "TWILIO_CALLER_ID" Config variable when deploying your Heroku application.
+  * Save this number for later and input it the "TWILIO_CALLER_ID" Config variable when deploying your Heroku application.
 
 3. Completing the rest of the tutorial is not necessary, you may if you wish.
 
@@ -35,7 +35,7 @@ You can expect to follow these steps creating your account.
 
 5. Select Verified Caller IDs.
 
-⋅⋅* Here you must add every phone number you wish to be able to be texted by your Heroku application. You should see the number you verified you humanity with already listed.
+  * Here you must add every phone number you wish to be able to be texted by your Heroku application. You should see the number you verified you humanity with already listed.
 
 ### Amazon Web Services
 
