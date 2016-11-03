@@ -47,10 +47,7 @@
       "description": "The bucket you created in S3 for all of your video files",
       "value": "name-of-bucket"
     },
-    "DATABASE_URL": {
-      "description": "Your postgres db url.",
-      "value":"postgres://"
-    },
+
     "FLASK_DEBUG":{
       "description": "Log level (0, no erros outputed to log not recommended)",
       "value": "0 or 1"
