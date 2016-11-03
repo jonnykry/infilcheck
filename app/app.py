@@ -109,8 +109,6 @@ def login():
             flask_login.login_user(user)
             return redirect('dashboard')
 
-    # TODO:  Send a bad request result
-
     return redirect('login_failed')
 
 
