@@ -70,7 +70,7 @@
   "success_url": "/",
 
   "scripts": {
-      "postdeploy": "app/initdb.py)"
+      "postdeploy": "app/initdb.py"
 }
 
 
