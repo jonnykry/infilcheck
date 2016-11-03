@@ -35,13 +35,17 @@ LOCAL = False
 # Whether or not the app is in verbose mode
 VERBOSE = False
 
-SETTINGS = {};
+CAPTURE_REQUESTED = False
+
+
+SETTINGS = {}
 
 ## LED1 While recording
 ## LED2 While occupied
 ## LED3 While upload
 ## LED4 Wait for cam
 ## LED5 LOW Light
+
 
 def log(msg, verbose_only=False):
     if (verbose_only and not VERBOSE):
@@ -52,29 +56,48 @@ def log(msg, verbose_only=False):
         print info
         myfile.write(info +'\n')
 
+        
 def polling_thread():
+
+    global CAPTURE_REQUESTED
+
     last_poll = datetime.datetime.now()
+
     while True:
-        while (datetime.datetime.now() - last_poll).seconds < 3:
-            pass
+        time.sleep(10)
+        
         last_poll = datetime.datetime.now()
+        
+        log("polling...")
 
-        log("polling...", True)
 
-
-        r = requests.get('https://agile-lake-39375.herokuapp.com/poll', data={'piid': PI_ID})
-
+        r = requests.post('https://agile-lake-39375.herokuapp.com/poll', data={'piid': PI_ID})
+    
         if r.ok:
-            log("polling response OK", True)
-        #           data = json.loads(r.text())
+            log("polling response OK")
+            log(r.text);
+            data = json.loads(r.text)
+            if data['requests_picture']:
+                CAPTURE_REQUESTED = True
+                
+            if data['update_settings']:
+                new_settings = data['settings_data']
+                SETTINGS['room_name'] = new_settings['room_name']
+                SETTINGS['capture_fr'] = new_settings['capture_framerate']
+                SETTINGS['output_fr'] = new_settings['output_framerate']
+                SETTINGS['threshold_frame_count'] = new_settings['threshold_frame_count']
+                SETTINGS['enabled'] = new_settings['is_enabled']
+
+            
         else:
-            log("polling response BAD", True)
-
-
-def upload_thread():
-    while True:
+            log("polling response BAD")
+        
+        
+def upload_thread():    
+    while True:    
         while not TO_UPLOAD:
-            pass
+            time.sleep(5)
+
         blink_led3()
         filepath = TO_UPLOAD.pop(0)
         if not LOCAL:
@@ -97,6 +120,7 @@ def upload_thread():
                 led4_on()
             finally:
                 blink_led3_stop()
+
         else:
             log("Not uploading " + filepath)
             time.sleep(3.0)
@@ -104,7 +128,7 @@ def upload_thread():
 
 def add_status_and_timestamps(frame, text, timestamp):
     ts = timestamp.strftime("%A %d %B %Y %I:%M:%S%p")
-    cv2.putText(frame, "Room: {}".format(text), (10, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
+    cv2.putText(frame, "{}: {}".format(SETTINGS['room_name'], text), (10, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
     cv2.putText(frame, ts, (10, frame.shape[0] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.35, (0, 0, 255), 1)
     cv2.putText(frame, "Light:  {}".format(light_sense()), (10, frame.shape[0] - 30), cv2.FONT_HERSHEY_SIMPLEX, 0.35, (0, 0, 255), 1)
 
@@ -126,7 +150,7 @@ def init_video_writer(fourcc):
 
     log('STARTING CAPTURE')
     filename = str(datetime.datetime.now()).replace(" ", "_").replace(":","_")[:-7] + ".avi"
-    OUT = cv2.VideoWriter(path + filename, fourcc, 10.0, (500, 375))
+    OUT = cv2.VideoWriter(path + filename, fourcc, SETTINGS['output_fr'], (500, 375))
     CURRENT_CAPTURE = path + filename
     IS_CAPTURING = True
 
@@ -135,11 +159,14 @@ def stop_recording():
     global IS_CAPTURING
     global OUT
     global CURRENT_CAPTURE
+    global CAPTURE_REQUESTED
+    
 
     log("DONE CAPTURING")
     IS_CAPTURING = False
     TO_UPLOAD.append(CURRENT_CAPTURE)
     CURRENT_CAPTURE = None
+    CAPTURE_REQUESTED = False
     OUT.release()
     OUT = None
     recordedFrames = 0
@@ -172,6 +199,10 @@ def read_settings_file():
         SETTINGS['output_fr'] = 10,
         needs_saving = True
 
+    if not 'enabled' in SETTINGS:
+        SETTINGS['enabled'] = True
+        needs_saving = True
+        
     if (not SETTINGS['pi_id']) and (not sys.environ['PI_ID']):
         print "Pi ID must either be set as 'pi_id' in settings.json or as PI_ID env var"
         return None
@@ -209,7 +240,7 @@ def main():
 
     cam = PiCamera()
     cam.resolution = CAPTURE_RESOLUTION
-    cam.framerate = 32
+    cam.framerate = SETTINGS['capture_fr']
 
     rawCapture = PiRGBArray(cam, size=CAPTURE_RESOLUTION)
 
@@ -227,12 +258,14 @@ def main():
     if not LOCAL:
         thread.start_new_thread(polling_thread, ())
 
+
     occupied = False
     text = ""
 
     log("UP AND RUNNING")
     for f in cam.capture_continuous(rawCapture, format="bgr", use_video_port=True):
         led1_on()
+
         frame = f.array
         timestamp = datetime.datetime.now()
         occupied = False
@@ -269,16 +302,24 @@ def main():
         text = "Occupied" if occupied else "Unoccupied"
 
         add_status_and_timestamps(frame, text, timestamp)
+        
+        if occupied or CAPTURE_REQUESTED:
 
-        if occupied:
-            led2_on()
+            if CAPTURE_REQUESTED:
+                log("recording due to request:  {}".format(recordedFrames))
+
+            led2_on()  
             motionCounter += 1
 
             # wait for X frames of motion to be sure
-            if motionCounter > 5 and OUT is None :
+            if (motionCounter > SETTINGS['threshold_frame_count'] or CAPTURE_REQUESTED) and OUT is None :               
                 init_video_writer(FOURCC)
 
-
+            if CAPTURE_REQUESTED and recordedFrames > 10:
+                recordedFrames = 0
+                stop_recording()
+                led2_off()
+                
             if IS_CAPTURING and OUT is not None and recordedFrames < 300:
                 recordedFrames += 1
                 OUT.write(frame)
