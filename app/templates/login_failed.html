@@ -2,18 +2,20 @@
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>InfilcheckM8</title>
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles/login.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles/notfound.css') }}">
     <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
 </head>
 <body>
 <div class="container">
-<h2 class="form-signin-heading">User Not Found</h2>
+<h1 class="text-center form-signin-heading">User Not Found</h2>
+  <div class="forms">
     <form action="/login">
-        <button class="btn btn-lg btn-primary btn-block">Login</button>
+        <button class="btn btn-lg btn-default">Login</button>
     </form>
     <br>
     <form action="/register">
-        <button class="btn btn-lg btn-primary btn-block">Register</button>
+        <button class="btn btn-lg btn-default">Register</button>
     </form>
+  </div>
 </div>
 </body>

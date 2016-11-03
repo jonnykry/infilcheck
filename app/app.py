@@ -6,7 +6,8 @@ import ffmpy
 from flask import request, render_template, redirect
 import flask_login
 import botocore
-from __init__ import db, app, s3, head_bucket, twilio_account, twilio_auth, twilio_caller
+from sqlalchemy import desc
+from __init__ import db, app, s3, head_bucket, twilio_account, twilio_auth, twilio_caller, twilio_alerts
 from models import User, Video, Flags, Pi
 import uuid
 from werkzeug.security import generate_password_hash
@@ -76,13 +77,13 @@ def request_loader(request):
 
     loaded_user = None
 
-    # TODO:  Why the loop here if we only want one???
-    for user in db.session.query(User).filter(User.email == email):
-        if user is None:
-            return
+    user = db.session.query(User).filter(User.email == email).first()
 
-        user.is_authenticated = user.check_password(password)
-        loaded_user = user
+    if user is None:
+        return
+
+    user.is_authenticated = user.check_password(password)
+    loaded_user = user
 
     return loaded_user
 
@@ -107,8 +108,6 @@ def login():
         if user.check_password(password):
             flask_login.login_user(user)
             return redirect('dashboard')
-
-    # TODO:  Send a bad request result
 
     return redirect('login_failed')
 
@@ -168,23 +167,37 @@ def settings():
         phone = flask.request.form['phone']
         pi_id = flask.request.form['piid']
 
+        room_name = flask.request.form['room_name']
+        capture_framerate = flask.request.form['capture_framerate']
+        output_framerate = flask.request.form['output_framerate']
+        threshold_frame_count = flask.request.form['threshold_frame_count']
+
         current_user = User.query.filter_by(id=flask_login.current_user.id).first()
 
         if pi_id == 'true':
            current_user.pi_id = str(uuid.uuid4())
 
-        if current_user.check_password(curpassword):
+        if current_user.check_password(curpassword) and password is not '':
             current_user.passhash = generate_password_hash(password)
 
         current_user.email = email
-
         current_user.phone = phone
+
+        pi_data = Pi.query.filter_by(id=flask_login.current_user.id).first()
+        pi_data.room_name = room_name
+        pi_data.capture_framerate = capture_framerate
+        pi_data.output_framerate =output_framerate
+        pi_data.threshold_frame_count = threshold_frame_count
+
+        flag=Flags.query.filter_by(id=flask_login.current_user.id).first()
+        flag.request_update_settings = True
 
         db.session.commit()
 
         return redirect('settings')
 
-    return render_template('settings.html', user_data = flask_login.current_user)
+    return render_template('settings.html', user_data = flask_login.current_user, pi_data = Pi.query.filter_by(id=flask_login.current_user.id).first())
+
 
 
 @app.route('/dashboard')
@@ -194,7 +207,7 @@ def dashboard():
     user_id = user.id
 
     video_list = []
-    for video in db.session.query(Video).filter(Video.user_id == user_id):
+    for video in db.session.query(Video).order_by(desc(Video.created_at)).filter(Video.user_id == user_id):
         video_list.append(video)
 
     username = user.email.rsplit('@', 1)[0]
@@ -202,10 +215,23 @@ def dashboard():
     return render_template('dashboard.html', username=username, videos=video_list)
 
 
+@app.route('/snapshot', methods=['POST'])
+@flask_login.login_required
+def snapshot():
+    user = flask_login.current_user
+    user_id = user.id
+
+    if request.method == 'POST':
+        flag = db.session.query(Flags).filter(Flags.user_id == user_id).first()
+        flag.request_picture = True
+        db.session.commit()
+
+    return redirect('dashboard')
+
+
 @app.route('/upload', methods=['POST'])
 def upload_video():
     if request.method == 'POST':
-
         pi_id = request.form['piid']
 
         user_to_update = db.session.query(User).filter(User.pi_id == pi_id).first()
@@ -257,8 +283,9 @@ def upload_video():
 
         gif_url = get_bucket_url(head_bucket, user_bucket + new_filename)
 
-        #SMS ALERT
-        sms_alert(gif_url)
+        #SMS ALERT if Config is set to 1 otherwise do not text
+        if(twilio_alerts == "1"):
+            sms_alert(gif_url, user_to_update.id)
 
         obj2 = s3.Object(head_bucket, user_bucket + filename)
         obj2.put(Body=open(in_filepath, 'rb'))
@@ -270,8 +297,6 @@ def upload_video():
         video = Video(user_to_update.id, vid_url, gif_url, datetime.utcnow())
         db.session.add(video)
         db.session.commit()
-
-
 
     return redirect('dashboard')
 
@@ -286,16 +311,18 @@ def poll():
         if user is None:
             return flask.abort(404)
 
-        flags = db.session.query(Flags).filter(Flags.user_id == user.id).first()
+        flag = db.session.query(Flags).filter(Flags.user_id == user.id).first()
         pi_obj = db.session.query(Pi).filter(Pi.user_id == user.id).first()
 
-        if flags is None or pi_obj is None:
+        if flag is None or pi_obj is None:
             return flask.abort(404)
 
-        update_settings = flags.request_update_settings
+        request_update_settings = flag.request_update_settings
+        request_picture = flag.request_picture
+        request_log = flag.request_log
 
         settings_data = {}
-        if update_settings is not False:
+        if request_update_settings:
             settings_data = {
                 'room_name': pi_obj.room_name,
                 'capture_framerate': pi_obj.capture_framerate,
@@ -303,13 +330,22 @@ def poll():
                 'output_framerate': pi_obj.output_framerate,
                 'is_enabled': pi_obj.is_enabled
             }
+            flag.request_update_settings = False
+
+        if request_picture:
+            flag.request_picture = False
+
+        if request_log:
+            flag.request_log = False
 
         response = {
-            'requests_picture': flags.request_picture,
-            'requests_log': flags.request_log,
-            'update_settings': flags.request_update_settings,
+            'requests_picture': request_picture,
+            'requests_log': request_log,
+            'update_settings': request_update_settings,
             'settings_data': settings_data
         }
+
+        db.session.commit()
 
         return flask.jsonify(response)
 
@@ -318,12 +354,13 @@ def get_bucket_url(bucket, object_name):
     return 'https://s3.amazonaws.com/' + bucket + '/' + object_name
 
 
-def sms_alert(gif_url):
+def sms_alert(gif_url, user_id):
     # Get User Phone Number
+    current_user = User.query.filter_by(id=user_id).first()
     # Create Twilio Message
-    message = client.sms.messages.create(to="+18159780753", from_=twilio_caller,
-                                            body="Intruder!",
-                                            media_url=[gif_url])
+    message = client.sms.messages.create(to=current_user.phone, from_=twilio_caller,
+                                            body="Intruder! Visit\n" + request.host + " \nfor more information",
+                                            media_url=['https://demo.twilio.com/owl.png', 'https://demo.twilio.com/logo.png'])
 
 
 if __name__ == '__main__':

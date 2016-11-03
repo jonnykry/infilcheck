@@ -4,24 +4,25 @@
     <title>Infilcheck</title>
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles/login.css') }}">
     <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-    <link href="https://fonts.googleapis.com/css?family=Ubuntu+Mono" rel="stylesheet">
 </head>
 <body>
-    <div class="container">
-      <div class="header text-center">
-        <h1>Infilcheck</h1>
-        <p>Take control of your home security system!</p>
-      </div>
+    <div class="container text-center">
+      <h1 class="">Infilcheck</h1>
       <form class="form-signin" action="login" method="POST">
-        <h2 class="text-center form-signin-heading">Log In</h2>
+        <h2 class="form-signin-heading">Log In</h2>
         <label for="inputEmail" class="sr-only">Email address</label>
         <input name="email" type="email" id="inputEmail" class="form-control" placeholder="Email address" required="" autofocus="">
         <label for="inputPassword" class="sr-only">Password</label>
         <input name="pass" type="password" id="inputPassword" class="form-control" placeholder="Password" required="">
-        <button class="btn btn-lg btn-default btn-block" type="submit">Sign In</button>
-      </form>
-      <form class="form-signin" action="register" method="GET">
-        <button class="btn btn-lg btn-default btn-block" type="submit">Register</button>
+        <div class="checkbox">
+          <label>
+            <input type="checkbox" value="remember-me"> Remember me
+          </label>
+        </div>
+        <button class="btn btn-lg btn-primary btn-block" type="submit">Sign In</button>
+        <div class="register">
+          Not a user?  <a href="/register">Register now!</a>
+        </div>
       </form>
     </div> <!-- /container -->
 </body>

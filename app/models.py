@@ -1,10 +1,11 @@
-from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, \
      check_password_hash
 import uuid
+from flask_sqlalchemy import SQLAlchemy
+from flask import Flask
 
-db = SQLAlchemy()
-
+app = Flask(__name__, template_folder='templates')
+db = SQLAlchemy(app)
 
 class User(db.Model):
     __tablename__ = 'users'
@@ -69,7 +70,6 @@ class Video(db.Model):
 
     def get_created_at(self):
         return self.created_at
-
 
 class Flags(db.Model):
     id = db.Column(db.Integer, primary_key=True)
