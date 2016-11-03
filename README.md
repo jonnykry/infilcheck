@@ -1,11 +1,85 @@
-# InfilcheckM8
+# Infilcheck
 
-InfilcheckM8 is a cheap and efficient home security product to notify you when your living quarters have been infiltrated.  The software is dependent upon a Raspberry Pi (TODO: version/link to Pi needed) and a PiCam(TODO:  version/link needed).  This repository offers software for:
+Infilcheck is a cheap and efficient home security product to notify you when your living quarters have been infiltrated.  The software is dependent upon a Raspberry Pi (TODO: version/link to Pi needed) and a PiCam(TODO:  version/link needed).  This repository offers software for:
 
 - A web application (located in the `app` directory, sample [here](https://agile-lake-39375.herokuapp.com)) to manage any infiltrations or check on the status of your room.
 - Live tracking (located in the `pi` directory) of a room for any activity
 
 In addition, we've created a prototype for (TODO:  Greg) to physically track when the Raspberry Pi is recording, among other things.
+
+#Installation Guide
+To install Infilcheck you must sign up for a number of free services.
+## Web Services
+### Heroku
+We will be using Heroku a cloud platform to host Infilcheck. The Heroku plan we will be using provides a postgres database and hosting for free.
+
+Sign up for Heroku by following this link. [sign-up](https://signup.heroku.com)
+
+After you have signed up you are ready to deploy Infilcheck by clicking the "Deploy to Heroku" button below. You will need to sign up for the following services to get text alerts when an intruder is detected and store video from your Pi.
+### Twilio
+Twilio is a texting service which will allow our application to alert you whenever there is an intruder.
+
+Create an account with Twilio by following this link. [sign-up](https://www.twilio.com/try-twilio)
+
+You can expect to follow these steps creating your account.
+
+1. Verify that you are not a robot by entering your mobile phone number and inputting a code sent to the phone's number you entered.
+
+2. Get your first Twilio number by following the tutorial.
+
+  * Save this number for later and input it as "TWILIO_CALLER_ID" Config variable when deploying your Heroku application.
+
+3. Completing the rest of the Twilio tutorial is not necessary, you may if you wish.
+
+4. Select the pound sign on the far right side (looks like this #).
+
+5. Select Verified Caller IDs.
+
+  * Here you must add every phone number you wish to be able to be texted by your Heroku application. You should see the number you verified you humanity with already listed.
+
+### Amazon Web Services
+
+
+
+
+## Heroku Deploy
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy?template=https://github.com/jonnykry/infilcheck/)
+Click the above link to deploy the repository to your Heroku account.
+
+You will be taken to a "Create New App" page where you will follow these steps to complete the InfilCheck deploy.
+
+1. Enter in the first box the name of your App. This is totally optional but a cool name is completely necessary.
+
+2. Runtime Selection - choose for the appropriate region you wish to run your InfilCheck deploy in.
+
+3. Enter the following Config Variables
+
+  1. **TWILIO_ACCOUNT_SID** (ACCOUNT SID) may be found under Account Summary at [https://www.twilio.com/user/account](https://www.twilio.com/user/account)
+
+  2. **TWILIO_AUTH_TOKEN** (AUTH TOKEN) may be found below Account Summary. You will need to click on the eye icon to reveal the token.
+
+  3. **TWILIO_CALLER_ID** is the active number you wish Twilio to send text alerts from and may be found here. [https://www.twilio.com/user/account/phone-numbers/incoming](https://www.twilio.com/user/account/phone-numbers/incoming)
+
+  4. **TWILIO_ALERTS** Twilio is not a completely free service and if you do not wish to get text alerts to your phone enter 0, otherwise 1
+
+  5. **AWS_ACCESS_KEY_ID** The Amazon webservice key found in your AWS dashboard found here [TODO PROVIDE LINK]()
+
+  6. **AWS_SECRET_ACCESS_KEY** An Amazon webservice key found in your AWS dashboard found here [TODO PROVIDE LINK]()
+
+  7. **S3_HEAD_BUCKET** The name of the bucket you created in S3 for all of your video files.
+
+  8. **FLASK_DEBUG** Set to 0 for no logged errors or 1. This is more of a development configuration if you have no clue set it to 1
+
+  9. **FLASK_PASSWORD** tbr
+
+  10. **FLASK_SECRET_KEY** tbr
+
+  11. **FLASK_USERNAME**  tbr
+
+  Click on the deploy button and you are off the races!
+
+
+
 
 # Dev Set-up Instructions
 
