@@ -10,6 +10,13 @@
     "web",
     "python",
     "SMS"],
+  
+"addons": [
+    {
+      "plan": "heroku-postgresql",
+      "as": "DATABASE"
+    }
+  ],
 
   "env": {
     "TWILIO_ACCOUNT_SID": {
@@ -40,10 +47,7 @@
       "description": "The bucket you created in S3 for all of your video files",
       "value": "name-of-bucket"
     },
-    "DATABASE_URL": {
-      "description": "Your postgres db url.",
-      "value":"postgres://"
-    },
+
     "FLASK_DEBUG":{
       "description": "Log level (0, no erros outputed to log not recommended)",
       "value": "0 or 1"
@@ -62,6 +66,12 @@
     }
 
   },
-  "success_url": "/"
+
+  "success_url": "/",
+
+  "scripts": {
+      "postdeploy": "python app/initdb.py"
+}
+
 
 }
