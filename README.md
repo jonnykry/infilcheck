@@ -23,19 +23,19 @@ Create an account with Twilio by following this link. [sign-up](https://www.twil
 
 You can expect to follow these steps creating your account.
 
-..1. Verify that you are not a robot by entering your mobile phone number and inputting a code sent to the phone's number you entered.
+⋅⋅1. Verify that you are not a robot by entering your mobile phone number and inputting a code sent to the phone's number you entered.
 
-..2. Get your first Twilio number by following the tutorial.
+⋅⋅2. Get your first Twilio number by following the tutorial.
 
-....* Save this number for later and input it the "TWILIO_CALLER_ID" Config variable when deploying your Heroku application.
+⋅⋅⋅⋅* Save this number for later and input it the "TWILIO_CALLER_ID" Config variable when deploying your Heroku application.
 
-..3. Completing the rest of the tutorial is not necessary, you may if you wish.
+⋅⋅3. Completing the rest of the tutorial is not necessary, you may if you wish.
 
-..4. Select the pound sign on the far right side (looks like this #).
+⋅⋅4. Select the pound sign on the far right side (looks like this #).
 
-..5. Select Verified Caller IDs.
+⋅⋅5. Select Verified Caller IDs.
 
-....* Here you must add every phone number you wish to be able to be texted by your Heroku application. You should see the number you verified you humanity with already listed.
+⋅⋅⋅⋅* Here you must add every phone number you wish to be able to be texted by your Heroku application. You should see the number you verified you humanity with already listed.
 
 ### Amazon Web Services
 
