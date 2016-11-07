@@ -7,37 +7,6 @@ Infilcheck is a cheap and efficient home security product that notifies you when
 
 In addition, we created a prototype for GPIO to physically track when the Raspberry Pi is recording, when videos are sent, and the status of uploads.
 
-# Dev Set-up Instructions
-
-Create a new `virtualenv`, `activate` it and run:
-```
-$ pip install -r requirements.txt
-```
-
-* Install and run a [local PostgreSQL Database Server](https://www.postgresql.org/download/)
-* Set local environment variables (optional:  store in  `.bash_vars` and `source` that file when working on this project):
-```
-export DATABASE_URL="postgres:///YOUR_DATABASE"
-export FLASK_APP="YOUR_PATH_TO/app/app.py"
-export FLASK_USERNAME="YOUR_USERNAME"
-export FLASK_PASSWORD="YOUR_PASSWORD"
-export FLASK_SECRET_KEY="YOUR_KEY"
-export FLASK_DEBUG=1
-export S3_HEAD_BUCKET="YOUR_AMAZON_S3_HEAD_BUCKET"
-export TWILIO_ACCOUNT_SID="YOUR_TWILIO_ACCOUNT_SID"
-export TWILIO_AUTH_TOKEN="YOUR_TWILIO_AUTH_TOKEN"
-export TWILIO_CALLER_ID="YOUR_TWILIO_CALLER_ID"
-export TWILIO_ALERTS="YOUR_TWILIO_ALERTS"
-```
-
-* Set up local AWS credentials for Boto 3 access (https://boto3.readthedocs.io/en/latest/guide/configuration.html)
-* Generate an empty SQL database:
-```
-$ python
->>> from app import db
->>> db.create_all()
-```
-
 # Installation Guide
 The Infilcheck Installation guide comes in two parts.
   1. Complete the web Installation and configure the appropriate services.
@@ -113,3 +82,34 @@ You will be taken to a "Create New App" page where you will follow these steps t
 
 ## Raspberry Pi
 TODO @samjxn
+
+# Local Development Set-up
+
+Create a new `virtualenv`, `activate` it and run:
+```
+$ pip install -r requirements.txt
+```
+
+* Install and run a [local PostgreSQL Database Server](https://www.postgresql.org/download/)
+* Set local environment variables (optional:  store in  `.bash_vars` and `source` that file when working on this project):
+```
+export DATABASE_URL="postgres:///YOUR_DATABASE"
+export FLASK_APP="YOUR_PATH_TO/app/app.py"
+export FLASK_USERNAME="YOUR_USERNAME"
+export FLASK_PASSWORD="YOUR_PASSWORD"
+export FLASK_SECRET_KEY="YOUR_KEY"
+export FLASK_DEBUG=1
+export S3_HEAD_BUCKET="YOUR_AMAZON_S3_HEAD_BUCKET"
+export TWILIO_ACCOUNT_SID="YOUR_TWILIO_ACCOUNT_SID"
+export TWILIO_AUTH_TOKEN="YOUR_TWILIO_AUTH_TOKEN"
+export TWILIO_CALLER_ID="YOUR_TWILIO_CALLER_ID"
+export TWILIO_ALERTS="YOUR_TWILIO_ALERTS"
+```
+
+* Set up local AWS credentials for Boto 3 access (https://boto3.readthedocs.io/en/latest/guide/configuration.html)
+* Generate an empty SQL database:
+```
+$ python
+>>> from app import db
+>>> db.create_all()
+```
