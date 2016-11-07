@@ -10,7 +10,7 @@
     "web",
     "python",
     "SMS"],
-  
+
 "addons": [
     {
       "plan": "heroku-postgresql",
@@ -40,7 +40,7 @@
       "value": "xxxxxxxxxxxxxxxxxxxx"
     },
     "AWS_SECRET_ACCESS_KEY": {
-      "description":"An Amazon webservice key found in your AWS dashboars",
+      "description":"An Amazon webservice key found in your AWS dashboard",
       "value": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
     },
     "S3_HEAD_BUCKET": {
