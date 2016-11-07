@@ -42,6 +42,7 @@ Amazon Web Services is used for S3 storage to store and serve the `.avi`/`.gif` 
 [Sign Up for AWS](https://aws.amazon.com/s3/).
 
 Once you've signed up, you need to:
+
 1. Authenticate your account using the Boto 3 credential configuration described [here](https://boto3.readthedocs.io/en/latest/guide/configuration.html)
 2. Create a head bucket to store all of your gifs/videos and set desired permissions on the bucket for web application access (required for viewing on the web application)
 3. Store the head bucket name as the `S3_HEAD_BUCKET` environment variable in Infilcheck
@@ -65,9 +66,10 @@ You will be taken to a "Create New App" page where you will follow these steps t
 
 ### Amazon Web Services Configurations
 
-  5. **AWS_ACCESS_KEY_ID** The Amazon webservice key found in your AWS dashboard found here [TODO PROVIDE LINK]()
-  6. **AWS_SECRET_ACCESS_KEY** An Amazon webservice key found in your AWS dashboard found here [TODO PROVIDE LINK]()
-  7. **S3_HEAD_BUCKET** The name of the bucket you created in S3 for all of your video files.
+The following must be set from your [AWS Credentials](https://docs.aws.amazon.com/sdk-for-java/v1/developer-guide/credentials.html):
+  5. **AWS_ACCESS_KEY_ID** Your Access Key ID from your AWS Security Console
+  6. **AWS_SECRET_ACCESS_KEY** Your Secret Access Key from your AWS Security Console
+  7. **S3_HEAD_BUCKET** The name of the bucket you created in S3 for all of your video files
 
 ### Flask Configurations
 
