@@ -9,27 +9,14 @@ In addition, we've created a prototype for (TODO:  Greg) to physically track whe
 
 # Dev Set-up Instructions
 
-MacOS Guide:
-
-Env Set-up:
-```
-$ export FLASK_APP=app/server.py
-$ export DATABASE_URL="postgresql://localhost/infilcheck_dev"
-```
-
 Local Database Set-up:
 ```
-$ psql
-# create database infilcheck_dev;
-CREATE DATABASE
-# \q
-
-$ python app/manage.py db init
-$ python app/manage.py db migrate
-$ python app/manage.py db upgrade
+$ python
+>>> from app import db
+>>> db.create_all()
 ```
 
-Example `.bash_vars` Environment Variables:
+Set Environment Variables (optional:  store in  `.bash_vars` and `source` for working on this project):
 
 ```
 export DATABASE_URL="postgres:///YOUR_DATABASE"
@@ -39,36 +26,4 @@ export FLASK_PASSWORD="YOUR_PASSWORD"
 export FLASK_SECRET_KEY="YOUR_KEY"
 export FLASK_DEBUG=1
 export S3_HEAD_BUCKET="YOUR_AMAZON_S3_HEAD_BUCKET"
-```
-
-
-Windows Guide:
-
-Env Set-up:
-```
-set FLASK_APP=app/server.py
-set DATABASE_URL=postgresql://postgres:@localhost/infilcheck_dev
-```
-
-Local Database Set-up:
-```
-Open SQL Shell
-Sign in with database password only
-# create database infilcheck_dev;
-CREATE DATABASE
-# \q
-
-$ python app/manage.py db init
-$ python app/manage.py db migrate
-$ python app/manage.py db upgrade
-```
-
-```
-set DATABASE_URL=postgresql://postgres:@localhost/infilcheck_dev
-set FLASK_APP=YOUR_PATH_TO/app/app.py
-set FLASK_USERNAME=YOUR_USERNAME
-set FLASK_PASSWORD=YOUR_PASSWORD
-set FLASK_SECRET_KEY="YOUR_KEY"
-set FLASK_DEBUG=1
-set S3_HEAD_BUCKET=YOUR_AMAZON_S3_HEAD_BUCKET
 ```
