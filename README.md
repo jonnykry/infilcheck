@@ -1,6 +1,6 @@
 # Infilcheck
 
-Infilcheck is a cheap and efficient home security product that notifies you when your living quarters have been infiltrated.  The software is dependent upon a Raspberry Pi (early models will be exponentially slower) and a PiCam [amazon link]{https://www.amazon.com/gp/product/B00E1GGE40/ref=as_li_tl?ie=UTF8&camp=1789&creative=390957&creativeASIN=B00E1GGE40&linkCode=as2&tag=trndingcom-20&linkId=XF5KMO3TGBUENU5T}.  This repository offers software for:
+Infilcheck is a cheap and efficient home security product that notifies you when your living quarters have been infiltrated.  The software is dependent upon a Raspberry Pi (early models will be exponentially slower) and a PiCam [amazon link](https://www.amazon.com/gp/product/B00E1GGE40/ref=as_li_tl?ie=UTF8&camp=1789&creative=390957&creativeASIN=B00E1GGE40&linkCode=as2&tag=trndingcom-20&linkId=XF5KMO3TGBUENU5T).  This repository offers software for:
 
 - A web application (located in the `app` directory, to manage any infiltrations or check on the status of your room
 - Live tracking (located in the `pi` directory) on a Raspberry Pi using a webcam
@@ -92,6 +92,7 @@ $ sudo apt-get update
 $ sudo apt-get upgrade
 $ sudo rpi-update
 ```
+### OpenCV Installation
 Install Dev tools
 ```
 $ sudo apt-get install build-essential cmake pkg-config
@@ -179,8 +180,26 @@ $ cd ~/.virtualenvs/cv/lib/python2.7/site-packages/
 $ ln -s /usr/local/lib/python2.7/site-packages/cv2.so cv2.so
 $ ln -s /usr/local/lib/python2.7/site-packages/cv.py cv.py
 ```
-
+Test your virtual enviroment.
 ```
+$ workon cv
+$ python
+>>> import cv2
+>>> cv2.__version__
+'2.4.10'
+```
+Should return you 2.4.10, the version number
+
+
+### Install picamera
+Work on the virtual enviroment we just created.
+```
+$ source ~/.profile
+$ workon cv
+```
+Install picamera using pip
+```
+$ pip install "picamera[array]"
 ```
 
 # Local Development Set-up
