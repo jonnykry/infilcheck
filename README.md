@@ -5,7 +5,7 @@ Infilcheck is a cheap and efficient home security product that notifies you when
 - A web application (located in the `app` directory, to manage any infiltrations or check on the status of your room
 - Live tracking (located in the `pi` directory) on a Raspberry Pi using a webcam
 
-In addition, we created a prototype for GPIO to physically track when the Raspberry Pi is recording, when videos are sent, and the status of uploads.
+In addition, we created a prototype with GPIO to visually track when the Raspberry Pi is recording, when videos are sent, and the status of uploads.
 
 # Installation Guide
 The Infilcheck Installation guide comes in two parts.
@@ -34,7 +34,7 @@ You can expect to follow these steps to create your account:
 3. Completing the rest of the Twilio tutorial is not necessary, you may if you wish.
 4. Select the pound sign on the far right side (looks like this #).
 5. Select Verified Caller IDs.
-  * Here you must add every phone number you wish to be able to be texted by your Heroku application. You should see the number you verified you humanity with already listed.
+  * Here you must add every phone number you wish to be able to be texted by your Heroku application. You should see the number you verified your humanity with already listed.
 
 ### Amazon Web Services
 Amazon Web Services is used for S3 storage to store and serve the `.avi`/`.gif` files.
