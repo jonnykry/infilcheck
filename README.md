@@ -1,6 +1,6 @@
 # Infilcheck
 
-Infilcheck is a cheap and efficient home security product that notifies you when your living quarters have been infiltrated.  The software is dependent upon a Raspberry Pi (TODO: version/link to Pi needed) and a PiCam(TODO:  version/link needed).  This repository offers software for:
+Infilcheck is a cheap and efficient home security product that notifies you when your living quarters have been infiltrated.  The software is dependent upon a Raspberry Pi (early models will be exponentially slower) and a PiCam [amazon link]{https://www.amazon.com/gp/product/B00E1GGE40/ref=as_li_tl?ie=UTF8&camp=1789&creative=390957&creativeASIN=B00E1GGE40&linkCode=as2&tag=trndingcom-20&linkId=XF5KMO3TGBUENU5T}.  This repository offers software for:
 
 - A web application (located in the `app` directory, to manage any infiltrations or check on the status of your room
 - Live tracking (located in the `pi` directory) on a Raspberry Pi using a webcam
@@ -83,7 +83,105 @@ The following must be set from your [AWS Credentials](https://docs.aws.amazon.co
   * Note: phone numbers must include country code to work with Twilio.
 
 ## Raspberry Pi
-TODO @samjxn
+[source]{http://www.pyimagesearch.com/2015/03/30/accessing-the-raspberry-pi-camera-with-opencv-and-python/}
+The following steps are taken from a mixture of two tutorials by pyimagesearch found at the link. Depending on which version Raspberry Pi you own these steps may take up to 10 hrs to complete.
+
+Make sure your Pi is up to date!
+```
+$ sudo apt-get update
+$ sudo apt-get upgrade
+$ sudo rpi-update
+```
+Install Dev tools
+```
+$ sudo apt-get install build-essential cmake pkg-config
+```
+Install media packages
+```
+$ sudo apt-get install libjpeg8-dev libtiff4-dev libjasper-dev libpng12-dev
+```
+Required for highgui
+```
+sudo apt-get install libgtk2.0-dev
+```
+Video I/O packages
+```
+$ sudo apt-get install libavcodec-dev libavformat-dev libswscale-dev libv4l-dev
+```
+Optimization Libraries for OpenCV
+```
+$ sudo apt-get install libatlas-base-dev gfortran
+```
+Install pip
+```
+$ wget https://bootstrap.pypa.io/get-pip.py
+$ sudo python get-pip.py
+```
+Install  virtualenv  and virtualenvwrapper
+```
+$ sudo pip install virtualenv virtualenvwrapper
+$ sudo rm -rf ~/.cache/pip
+```
+Update your bash ~/.profile by using your favorite text editor and adding the following lines.
+```
+# virtualenv and virtualenvwrapper
+export WORKON_HOME=$HOME/.virtualenvs
+source /usr/local/bin/virtualenvwrapper.sh
+```
+Reload your ~./profile
+```
+$ source ~/.profile
+```
+create a virtual enviroment
+```
+$ mkvirtualenv cv
+```
+Install Python 2.7 development tools
+```
+$ sudo apt-get install python2.7-dev
+```
+
+Install Numpy
+```
+$ pip install numpy
+```
+Download OpenCV and upack it
+* Note: If you get an error redownload OpenCV as sourceforge may have corrupted it
+```
+$ wget -O opencv-2.4.10.zip http://sourceforge.net/projects/opencvlibrary/files/opencv-unix/2.4.10/opencv-2.4.10.zip/download
+$ unzip opencv-2.4.10.zip
+$ cd opencv-2.4.10
+```
+Setup build
+```
+$ mkdir build
+$ cd build
+$ cmake -D CMAKE_BUILD_TYPE=RELEASE -D CMAKE_INSTALL_PREFIX=/usr/local -D BUILD_NEW_PYTHON_SUPPORT=ON -D INSTALL_C_EXAMPLES=ON -D INSTALL_PYTHON_EXAMPLES=ON  -D BUILD_EXAMPLES=ON ..
+```
+Compile
+* Note: If for any reason make fails or is interupted you may rerun the command and it will pick up where it left off
+* Time: Raspberry Pi B+: ~9.5 hours     Raspberry Pi 2: ~3 hours
+```
+$ make
+```
+Install OpenCV
+```
+$ sudo make install
+$ sudo ldconfig
+```
+Check that OpenCV is installed in 
+```
+/usr/local/lib/python2.7/site-packages
+```
+Setup OpenCV for work in our virtual enviroment
+```
+$ cd ~/.virtualenvs/cv/lib/python2.7/site-packages/
+$ ln -s /usr/local/lib/python2.7/site-packages/cv2.so cv2.so
+$ ln -s /usr/local/lib/python2.7/site-packages/cv.py cv.py
+```
+
+```
+```
 
 # Local Development Set-up
 
