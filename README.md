@@ -11,6 +11,8 @@ In addition, we created a prototype with GPIO to visually track when the Raspber
 The Infilcheck Installation guide comes in two parts.
   1. Complete the web Installation and configure the appropriate services.
   2. Install our software on a Raspberry Pi. This process is detailed for you below.
+  
+  
 To follow our complete installation guide and learn more about our Heroku configurations please check out [INSTALL.md](INSTALL.md)
 
 # Local Development Set-up
