@@ -1,3 +1,7 @@
+# NOTICE: This project is not recommended for real security use!!! There are vulnerabilities within many package dependency versions in the project.
+
+This project was a school project by three students at Iowa State University in ~2016. It is not recommended to download, install, and run this project, as it has not seen updates and may leave users susceptible to security risk and vulnerability.
+
 # Infilcheck
 
 Infilcheck is a cheap and efficient home security product that notifies you when your living quarters have been infiltrated.  The software is dependent upon a Raspberry Pi (early models will be exponentially slower) and a PiCam [amazon link](https://www.amazon.com/gp/product/B00E1GGE40/ref=as_li_tl?ie=UTF8&camp=1789&creative=390957&creativeASIN=B00E1GGE40&linkCode=as2&tag=trndingcom-20&linkId=XF5KMO3TGBUENU5T).  This repository offers software for:
